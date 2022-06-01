@@ -5,29 +5,10 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
+import DataUtil, { DeviceType, TileType } from "./DataUtil";
+
 const {ccclass, property} = cc._decorator;
-enum TileType{
-    Sand,
-    Dirt,
-    Grass,
-    Water,
-    Stone,
-    Sand_H,
-    Dirt_H,
-    Grass_H
-}
-enum DeviceType{
-    Cactus,
-    Rock,
-    Farm_Empty,
-    Farm,
-    VillageCommittee,
-    House1,
-    House2,
-    House3,
-    House4,
-    Shop1,
-}
+
 enum MapStatus{
     Move,
     Build
@@ -56,8 +37,7 @@ export default class MapScript extends cc.Component {
     // LIFE-CYCLE CALLBACKS:
 
     // onLoad () {}
-    mapArray = [];
-    deviceArray = [];
+    
     static mapStatus = MapStatus.Move;
     ifPressed = false;
     start () {
@@ -81,38 +61,38 @@ export default class MapScript extends cc.Component {
                     line_device.push(-1);
                 }
             }
-            this.mapArray.push(line);
-            this.deviceArray.push(line_device);
+            DataUtil.mapArray.push(line);
+            DataUtil.deviceArray.push(line_device);
         }
         // 初始化居民区与农田
         const midHeight = Math.floor(this.mapHeight/2);
         const midWidth = Math.floor(this.mapWidth/2);
-        this.mapArray[midHeight - 2][midWidth - 1] = TileType.Dirt;
-        this.mapArray[midHeight - 2][midWidth] = TileType.Dirt;
-        this.mapArray[midHeight - 2][midWidth + 1] = TileType.Dirt;
-        this.mapArray[midHeight - 1][midWidth - 1] = TileType.Dirt;
-        this.mapArray[midHeight - 1][midWidth] = TileType.Grass;
-        this.deviceArray[midHeight - 1][midWidth] = DeviceType.Farm;
-        this.mapArray[midHeight - 1][midWidth + 1] = TileType.Water;
-        this.deviceArray[midHeight - 1][midWidth + 1] = -1;
-        this.mapArray[midHeight - 1][midWidth + 2] = TileType.Dirt;
-        this.mapArray[midHeight][midWidth] = TileType.Stone;
-        this.deviceArray[midHeight][midWidth] = DeviceType.VillageCommittee;
-        this.mapArray[midHeight][midWidth - 1] = TileType.Stone;
-        this.deviceArray[midHeight][midWidth - 1] = DeviceType.House1;
-        this.mapArray[midHeight][midWidth - 2] = TileType.Dirt;
-        this.mapArray[midHeight][midWidth + 1] = TileType.Grass;
-        this.deviceArray[midHeight][midWidth + 1] = DeviceType.Farm;
-        this.mapArray[midHeight][midWidth + 2] = TileType.Dirt;
-        this.mapArray[midHeight + 1][midWidth - 1] = TileType.Dirt;
-        this.mapArray[midHeight + 1][midWidth] = TileType.Stone;
-        this.deviceArray[midHeight + 1][midWidth] = DeviceType.Shop1;
-        this.mapArray[midHeight + 1][midWidth + 1] = TileType.Stone;
-        this.deviceArray[midHeight + 1][midWidth + 1] = DeviceType.House1;
-        this.mapArray[midHeight + 1][midWidth + 2] = TileType.Dirt;
-        this.mapArray[midHeight + 2][midWidth - 1] = TileType.Dirt;
-        this.mapArray[midHeight + 2][midWidth] = TileType.Dirt;
-        this.mapArray[midHeight + 2][midWidth + 1] = TileType.Dirt;
+        DataUtil.mapArray[midHeight - 2][midWidth - 1] = TileType.Dirt;
+        DataUtil.mapArray[midHeight - 2][midWidth] = TileType.Dirt;
+        DataUtil.mapArray[midHeight - 2][midWidth + 1] = TileType.Dirt;
+        DataUtil.mapArray[midHeight - 1][midWidth - 1] = TileType.Dirt;
+        DataUtil.mapArray[midHeight - 1][midWidth] = TileType.Grass;
+        DataUtil.deviceArray[midHeight - 1][midWidth] = DeviceType.Farm;
+        DataUtil.mapArray[midHeight - 1][midWidth + 1] = TileType.Water;
+        DataUtil.deviceArray[midHeight - 1][midWidth + 1] = -1;
+        DataUtil.mapArray[midHeight - 1][midWidth + 2] = TileType.Dirt;
+        DataUtil.mapArray[midHeight][midWidth] = TileType.Stone;
+        DataUtil.deviceArray[midHeight][midWidth] = DeviceType.VillageCommittee;
+        DataUtil.mapArray[midHeight][midWidth - 1] = TileType.Stone;
+        DataUtil.deviceArray[midHeight][midWidth - 1] = DeviceType.House1;
+        DataUtil.mapArray[midHeight][midWidth - 2] = TileType.Dirt;
+        DataUtil.mapArray[midHeight][midWidth + 1] = TileType.Grass;
+        DataUtil.deviceArray[midHeight][midWidth + 1] = DeviceType.Farm;
+        DataUtil.mapArray[midHeight][midWidth + 2] = TileType.Dirt;
+        DataUtil.mapArray[midHeight + 1][midWidth - 1] = TileType.Dirt;
+        DataUtil.mapArray[midHeight + 1][midWidth] = TileType.Stone;
+        DataUtil.deviceArray[midHeight + 1][midWidth] = DeviceType.Shop1;
+        DataUtil.mapArray[midHeight + 1][midWidth + 1] = TileType.Stone;
+        DataUtil.deviceArray[midHeight + 1][midWidth + 1] = DeviceType.House1;
+        DataUtil.mapArray[midHeight + 1][midWidth + 2] = TileType.Dirt;
+        DataUtil.mapArray[midHeight + 2][midWidth - 1] = TileType.Dirt;
+        DataUtil.mapArray[midHeight + 2][midWidth] = TileType.Dirt;
+        DataUtil.mapArray[midHeight + 2][midWidth + 1] = TileType.Dirt;
 
         this.refreshMap();
         this.mapNode.on(cc.Node.EventType.TOUCH_START,(event)=>{
@@ -151,13 +131,13 @@ export default class MapScript extends cc.Component {
         // 生成 Terrain Sprite
         for(let j = 0; j < this.mapHeight; j++){
             for(let i = 0; i < this.mapWidth; i++){
-                let type = this.mapArray[j][i];
+                let type = DataUtil.mapArray[j][i];
                 const newTS = cc.instantiate(this.tileSprites[type]);
                 newTS.y = (j - this.mapHeight / 2.0) * Math.floor(this.tileHeight * 0.75 - 2);
                 newTS.x = (i - this.mapWidth / 2.0 - (j % 2) * 0.5) * this.tileWidth;
                 this.mapNode.addChild(newTS);
 
-                let devicetype = this.deviceArray[j][i];
+                let devicetype = DataUtil.deviceArray[j][i];
                 if(devicetype > -1){
                     const newDC = cc.instantiate(this.deviceSprites[devicetype]);
                     newDC.y = (j - this.mapHeight / 2.0) * Math.floor(this.tileHeight * 0.75 - 2);
