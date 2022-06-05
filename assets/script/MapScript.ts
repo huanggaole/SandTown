@@ -31,6 +31,12 @@ export default class MapScript extends cc.Component {
     @property(cc.Node)
     mapNode: cc.Node = null;
 
+    @property(cc.Node)
+    tilesNode: cc.Node = null;
+
+    @property(cc.Sprite)
+    hexSlected: cc.Sprite = null;
+
     @property([cc.Prefab])
     tileSprites: Array<cc.Prefab> = [];
 
@@ -65,8 +71,10 @@ export default class MapScript extends cc.Component {
                 }else{
                     tile.deviceType = -1;
                 }
-                tile.row = (j - this.mapHeight / 2.0) * Math.floor(this.tileHeight * 0.75 - 2);
-                tile.col = (i - this.mapWidth / 2.0 - (j % 2) * 0.5) * this.tileWidth;
+                tile.row = j;
+                tile.col = i;
+                tile.y = (j - this.mapHeight / 2.0) * Math.floor(this.tileHeight * 0.75 - 2);
+                tile.x = (i - this.mapWidth / 2.0 - (j % 2) * 0.5) * this.tileWidth;
                 line.push(tile);
             }
             DataUtil.tileArray.push(line);
@@ -100,7 +108,7 @@ export default class MapScript extends cc.Component {
         DataUtil.tileArray[midHeight + 2][midWidth - 1].tileType = TileType.Dirt;
         DataUtil.tileArray[midHeight + 2][midWidth].tileType = TileType.Dirt;
         DataUtil.tileArray[midHeight + 2][midWidth + 1].tileType = TileType.Dirt;
-        // 初始化土壤含水量
+        // 初始化土壤含水量及工人属性
         for(let j = 0; j < this.mapHeight; j++){
             for(let i = 0; i < this.mapWidth; i++){
                 const tile = DataUtil.tileArray[j][i];
@@ -115,6 +123,11 @@ export default class MapScript extends cc.Component {
                 }else{
                     tile.SWC = 3;
                 }
+                if(tile.deviceType >= 0){
+                    tile.workerLimits = DataUtil.deviceAttr[tile.deviceType].workerLimits;
+                    tile.workerNum = DataUtil.deviceAttr[tile.deviceType].workerNum; 
+                }
+
             }
         }
         this.refreshMap();
@@ -156,6 +169,9 @@ export default class MapScript extends cc.Component {
                             const tile = DataUtil.tileArray[loc.y][loc.x];
                             console.log(tile);
                             DetailPanelScript.getInstance().showDetail(tile);
+                            this.hexSlected.node.x = tile.x;
+                            this.hexSlected.node.y = tile.y;
+                            this.hexSlected.node.active = true;
                         }
                     }
                     break;
@@ -164,15 +180,15 @@ export default class MapScript extends cc.Component {
     }
 
     refreshMap(){
-        this.mapNode.removeAllChildren();
+        this.tilesNode.removeAllChildren();
         // 生成 Terrain Sprite
         for(let j = 0; j < this.mapHeight; j++){
             for(let i = 0; i < this.mapWidth; i++){
                 let type = DataUtil.tileArray[j][i].tileType;
                 const newTS = cc.instantiate(this.tileSprites[type]);
-                newTS.y = DataUtil.tileArray[j][i].row;
-                newTS.x = DataUtil.tileArray[j][i].col;
-                this.mapNode.addChild(newTS);
+                newTS.y = DataUtil.tileArray[j][i].y;
+                newTS.x = DataUtil.tileArray[j][i].x;
+                this.tilesNode.addChild(newTS);
                 DataUtil.tileArray[j][i].tileSF = newTS.getComponent(cc.Sprite).spriteFrame;
 
                 let devicetype = DataUtil.tileArray[j][i].deviceType;
@@ -180,7 +196,7 @@ export default class MapScript extends cc.Component {
                     const newDC = cc.instantiate(this.deviceSprites[devicetype]);
                     newDC.y = (j - this.mapHeight / 2.0) * Math.floor(this.tileHeight * 0.75 - 2);
                     newDC.x = (i - this.mapWidth / 2.0 - (j % 2) * 0.5) * this.tileWidth;
-                    this.mapNode.addChild(newDC);
+                    this.tilesNode.addChild(newDC);
                     DataUtil.tileArray[j][i].deviceSF = newDC.getComponent(cc.Sprite).spriteFrame;
                 }else{
                     DataUtil.tileArray[j][i].deviceSF = null;
@@ -197,7 +213,7 @@ export default class MapScript extends cc.Component {
         for(let j = 0; j <  DataUtil.tileArray.length; j++){
             for(let i = 0; i < DataUtil.tileArray[0].length; i++){
 
-                if((x - DataUtil.tileArray[j][i].col)*(x - DataUtil.tileArray[j][i].col)+(y - DataUtil.tileArray[j][i].row)*(y - DataUtil.tileArray[j][i].row) < 3600){
+                if((x - DataUtil.tileArray[j][i].x)*(x - DataUtil.tileArray[j][i].x)+(y - DataUtil.tileArray[j][i].y)*(y - DataUtil.tileArray[j][i].y) < 3600){
                     loc.x = i;
                     loc.y = j;
                 }
