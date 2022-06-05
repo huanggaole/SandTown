@@ -6,6 +6,8 @@
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
 import DataUtil, { DeviceType, TileType } from "./DataUtil";
+import DetailPanelScript from "./DetailPanelScript";
+import TileScript from "./TileScript";
 
 const {ccclass, property} = cc._decorator;
 
@@ -13,6 +15,7 @@ enum MapStatus{
     Move,
     Build
 }
+
 @ccclass
 export default class MapScript extends cc.Component {
 
@@ -40,63 +43,85 @@ export default class MapScript extends cc.Component {
     
     static mapStatus = MapStatus.Move;
     ifPressed = false;
+    pressPoint: cc.Vec2;
+    static MapLoc: cc.Vec2;
     start () {
         // 初始化沙地
         for(let j = 0; j < this.mapHeight; j++){
-            const line = [];
-            const line_device = [];
+            const line:Array<TileScript> = [];
             for(let i = 0; i < this.mapWidth; i++){
+                const tile = new TileScript();
                 // 有一定概率生成丘陵地形，其他情况下是平原地形
                 if(Math.random() < this.prop_H){
-                    line.push(TileType.Sand_H);
+                    tile.tileType = TileType.Sand_H;
                 }else{
-                    line.push(TileType.Sand);
+                    tile.tileType = TileType.Sand;
                 }
                 // 有一定概率生成仙人掌与岩石设施
                 if(Math.random() < this.prop_Cactus){
-                    line_device.push(DeviceType.Cactus);
+                    tile.deviceType = DeviceType.Cactus;
                 }else if(Math.random() < this.prop_Rock){
-                    line_device.push(DeviceType.Rock);
+                    tile.deviceType = DeviceType.Rock;
                 }else{
-                    line_device.push(-1);
+                    tile.deviceType = -1;
                 }
+                tile.row = (j - this.mapHeight / 2.0) * Math.floor(this.tileHeight * 0.75 - 2);
+                tile.col = (i - this.mapWidth / 2.0 - (j % 2) * 0.5) * this.tileWidth;
+                line.push(tile);
             }
-            DataUtil.mapArray.push(line);
-            DataUtil.deviceArray.push(line_device);
+            DataUtil.tileArray.push(line);
         }
         // 初始化居民区与农田
         const midHeight = Math.floor(this.mapHeight/2);
         const midWidth = Math.floor(this.mapWidth/2);
-        DataUtil.mapArray[midHeight - 2][midWidth - 1] = TileType.Dirt;
-        DataUtil.mapArray[midHeight - 2][midWidth] = TileType.Dirt;
-        DataUtil.mapArray[midHeight - 2][midWidth + 1] = TileType.Dirt;
-        DataUtil.mapArray[midHeight - 1][midWidth - 1] = TileType.Dirt;
-        DataUtil.mapArray[midHeight - 1][midWidth] = TileType.Grass;
-        DataUtil.deviceArray[midHeight - 1][midWidth] = DeviceType.Farm;
-        DataUtil.mapArray[midHeight - 1][midWidth + 1] = TileType.Water;
-        DataUtil.deviceArray[midHeight - 1][midWidth + 1] = -1;
-        DataUtil.mapArray[midHeight - 1][midWidth + 2] = TileType.Dirt;
-        DataUtil.mapArray[midHeight][midWidth] = TileType.Stone;
-        DataUtil.deviceArray[midHeight][midWidth] = DeviceType.VillageCommittee;
-        DataUtil.mapArray[midHeight][midWidth - 1] = TileType.Stone;
-        DataUtil.deviceArray[midHeight][midWidth - 1] = DeviceType.House1;
-        DataUtil.mapArray[midHeight][midWidth - 2] = TileType.Dirt;
-        DataUtil.mapArray[midHeight][midWidth + 1] = TileType.Grass;
-        DataUtil.deviceArray[midHeight][midWidth + 1] = DeviceType.Farm;
-        DataUtil.mapArray[midHeight][midWidth + 2] = TileType.Dirt;
-        DataUtil.mapArray[midHeight + 1][midWidth - 1] = TileType.Dirt;
-        DataUtil.mapArray[midHeight + 1][midWidth] = TileType.Stone;
-        DataUtil.deviceArray[midHeight + 1][midWidth] = DeviceType.Shop1;
-        DataUtil.mapArray[midHeight + 1][midWidth + 1] = TileType.Stone;
-        DataUtil.deviceArray[midHeight + 1][midWidth + 1] = DeviceType.House1;
-        DataUtil.mapArray[midHeight + 1][midWidth + 2] = TileType.Dirt;
-        DataUtil.mapArray[midHeight + 2][midWidth - 1] = TileType.Dirt;
-        DataUtil.mapArray[midHeight + 2][midWidth] = TileType.Dirt;
-        DataUtil.mapArray[midHeight + 2][midWidth + 1] = TileType.Dirt;
-
+        DataUtil.tileArray[midHeight - 2][midWidth - 1].tileType = TileType.Dirt;
+        DataUtil.tileArray[midHeight - 2][midWidth].tileType = TileType.Dirt;
+        DataUtil.tileArray[midHeight - 2][midWidth + 1].tileType = TileType.Dirt;
+        DataUtil.tileArray[midHeight - 1][midWidth - 1].tileType = TileType.Dirt;
+        DataUtil.tileArray[midHeight - 1][midWidth].tileType = TileType.Grass;
+        DataUtil.tileArray[midHeight - 1][midWidth].deviceType = DeviceType.Farm;
+        DataUtil.tileArray[midHeight - 1][midWidth + 1].tileType = TileType.Water;
+        DataUtil.tileArray[midHeight - 1][midWidth + 1].deviceType = -1;
+        DataUtil.tileArray[midHeight - 1][midWidth + 2].tileType = TileType.Dirt;
+        DataUtil.tileArray[midHeight][midWidth].tileType = TileType.Stone;
+        DataUtil.tileArray[midHeight][midWidth].deviceType = DeviceType.VillageCommittee;
+        DataUtil.tileArray[midHeight][midWidth - 1].tileType = TileType.Stone;
+        DataUtil.tileArray[midHeight][midWidth - 1].deviceType = DeviceType.House1;
+        DataUtil.tileArray[midHeight][midWidth - 2].tileType = TileType.Dirt;
+        DataUtil.tileArray[midHeight][midWidth + 1].tileType = TileType.Grass;
+        DataUtil.tileArray[midHeight][midWidth + 1].deviceType = DeviceType.Farm;
+        DataUtil.tileArray[midHeight][midWidth + 2].tileType = TileType.Dirt;
+        DataUtil.tileArray[midHeight + 1][midWidth - 1].tileType = TileType.Dirt;
+        DataUtil.tileArray[midHeight + 1][midWidth].tileType = TileType.Stone;
+        DataUtil.tileArray[midHeight + 1][midWidth].deviceType = DeviceType.Shop1;
+        DataUtil.tileArray[midHeight + 1][midWidth + 1].tileType = TileType.Stone;
+        DataUtil.tileArray[midHeight + 1][midWidth + 1].deviceType = DeviceType.House1;
+        DataUtil.tileArray[midHeight + 1][midWidth + 2].tileType = TileType.Dirt;
+        DataUtil.tileArray[midHeight + 2][midWidth - 1].tileType = TileType.Dirt;
+        DataUtil.tileArray[midHeight + 2][midWidth].tileType = TileType.Dirt;
+        DataUtil.tileArray[midHeight + 2][midWidth + 1].tileType = TileType.Dirt;
+        // 初始化土壤含水量
+        for(let j = 0; j < this.mapHeight; j++){
+            for(let i = 0; i < this.mapWidth; i++){
+                const tile = DataUtil.tileArray[j][i];
+                if(tile.tileType == TileType.Grass){
+                    tile.SWC = 18;
+                }else if(tile.tileType == TileType.Stone){
+                    tile.SWC = 15;
+                }else if(tile.tileType == TileType.Dirt){
+                    tile.SWC = 12;
+                }else if(tile.tileType == TileType.Water){
+                    tile.SWC = 55;
+                }else{
+                    tile.SWC = 3;
+                }
+            }
+        }
         this.refreshMap();
         this.mapNode.on(cc.Node.EventType.TOUCH_START,(event)=>{
-            console.log(this.ifPressed);
+            // console.log(this.ifPressed);
+            this.pressPoint = new cc.Vec2(event.touch._point.x, event.touch._point.y);
+            MapScript.MapLoc = new cc.Vec2(this.mapNode.x, this.mapNode.y);
             this.ifPressed = true;
             switch(MapScript.mapStatus){
                 case MapStatus.Move: 
@@ -105,22 +130,34 @@ export default class MapScript extends cc.Component {
             }
         },this);;
         this.mapNode.on(cc.Node.EventType.TOUCH_MOVE,(event)=>{
-            console.log(this.ifPressed);
+            // console.log(this.ifPressed);
             if(this.ifPressed){
                 switch(MapScript.mapStatus){
                     case MapStatus.Move: 
                         this.mapNode.x += (event.touch._point.x - event.touch._prevPoint.x);
                         this.mapNode.y += (event.touch._point.y- event.touch._prevPoint.y);
+                        MapScript.MapLoc = new cc.Vec2(this.mapNode.x, this.mapNode.y);
                         break;
                 }
             }
         },this);
-        this.mapNode.on(cc.Node.EventType.TOUCH_END,()=>{
-            console.log(this.ifPressed);
+        this.mapNode.on(cc.Node.EventType.TOUCH_END,(event)=>{
+            // console.log(this.ifPressed);
+            const releasePoint = event.touch._point;
+            let delDist = (releasePoint.x - this.pressPoint.x) * (releasePoint.x - this.pressPoint.x) + (releasePoint.y - this.pressPoint.y) * (releasePoint.y - this.pressPoint.y);
             this.ifPressed = false;
+
             switch(MapScript.mapStatus){
                 case MapStatus.Move: 
                     cc.game.canvas.style.cursor = "default";
+                    if(delDist < 4){
+                        const loc = MapScript.getTouchLoc(releasePoint.x, releasePoint.y);
+                        if(loc.x > -1 && loc.y > -1){
+                            const tile = DataUtil.tileArray[loc.y][loc.x];
+                            console.log(tile);
+                            DetailPanelScript.getInstance().showDetail(tile);
+                        }
+                    }
                     break;
             }
         },this);
@@ -131,21 +168,43 @@ export default class MapScript extends cc.Component {
         // 生成 Terrain Sprite
         for(let j = 0; j < this.mapHeight; j++){
             for(let i = 0; i < this.mapWidth; i++){
-                let type = DataUtil.mapArray[j][i];
+                let type = DataUtil.tileArray[j][i].tileType;
                 const newTS = cc.instantiate(this.tileSprites[type]);
-                newTS.y = (j - this.mapHeight / 2.0) * Math.floor(this.tileHeight * 0.75 - 2);
-                newTS.x = (i - this.mapWidth / 2.0 - (j % 2) * 0.5) * this.tileWidth;
+                newTS.y = DataUtil.tileArray[j][i].row;
+                newTS.x = DataUtil.tileArray[j][i].col;
                 this.mapNode.addChild(newTS);
+                DataUtil.tileArray[j][i].tileSF = newTS.getComponent(cc.Sprite).spriteFrame;
 
-                let devicetype = DataUtil.deviceArray[j][i];
+                let devicetype = DataUtil.tileArray[j][i].deviceType;
                 if(devicetype > -1){
                     const newDC = cc.instantiate(this.deviceSprites[devicetype]);
                     newDC.y = (j - this.mapHeight / 2.0) * Math.floor(this.tileHeight * 0.75 - 2);
                     newDC.x = (i - this.mapWidth / 2.0 - (j % 2) * 0.5) * this.tileWidth;
                     this.mapNode.addChild(newDC);
+                    DataUtil.tileArray[j][i].deviceSF = newDC.getComponent(cc.Sprite).spriteFrame;
+                }else{
+                    DataUtil.tileArray[j][i].deviceSF = null;
                 }
             }
         }
+    }
+
+    static getTouchLoc(touchX, touchY):cc.Vec2{
+        const x = touchX - MapScript.MapLoc.x - 480;
+        const y = touchY - MapScript.MapLoc.y - 320;
+        const loc = new cc.Vec2(-1,-1);
+        // console.log(MapScript.TileLocs);
+        for(let j = 0; j <  DataUtil.tileArray.length; j++){
+            for(let i = 0; i < DataUtil.tileArray[0].length; i++){
+
+                if((x - DataUtil.tileArray[j][i].col)*(x - DataUtil.tileArray[j][i].col)+(y - DataUtil.tileArray[j][i].row)*(y - DataUtil.tileArray[j][i].row) < 3600){
+                    loc.x = i;
+                    loc.y = j;
+                }
+                
+            }
+        }
+        return loc;
     }
     // update (dt) {}
 }

@@ -5,6 +5,8 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
+import TileScript from "./TileScript";
+
 
 export enum TileType{
     Sand,
@@ -31,8 +33,7 @@ export enum DeviceType{
 
 export default class DataUtil {
 
-    static mapArray = [];
-    static deviceArray = [];
+    static tileArray:Array<Array<TileScript>> = [];
 
     static levelNum = 1;
 
@@ -47,4 +48,12 @@ export default class DataUtil {
     static nextLevel(){
         this.levelNum++;
     }
+
+    static deviceAttr = [
+        
+    ];
+
+    House1 = {
+
+    };
 }
