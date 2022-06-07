@@ -33,7 +33,13 @@ export default class MenuScript extends cc.Component {
     cultureLbl: cc.Label = null;
 
     @property(cc.Label)
+    delCultureLbl: cc.Label = null;
+
+    @property(cc.Label)
     moneyLbl: cc.Label = null;
+
+    @property(cc.Label)
+    delMoneyLbl: cc.Label = null;
 
     @property(cc.Label)
     foodLbl: cc.Label = null;
@@ -63,11 +69,24 @@ export default class MenuScript extends cc.Component {
     pressedSF:cc.SpriteFrame = null;
     // LIFE-CYCLE CALLBACKS:
 
+    static popLbl;
+    static hapLbl;
+    static culLbl;
+    static delCulLbl;
+    static monLbl;
+    static delMonLbl;
+    static fooLbl;
     // onLoad () {}
     operState:operType = operType.Move;
     start () {
         this.refreshMenu();
-
+        MenuScript.popLbl = this.populationLbl;
+        MenuScript.hapLbl = this.happinessLbl;
+        MenuScript.culLbl = this.cultureLbl;
+        MenuScript.delCulLbl = this.delCultureLbl;
+        MenuScript.monLbl = this.moneyLbl;
+        MenuScript.delMonLbl = this.delMoneyLbl;
+        MenuScript.fooLbl = this.foodLbl;
         this.moveButton.node.on("click",()=>{
             this.operState = operType.Move;
             this.updateButtons();
@@ -160,13 +179,43 @@ export default class MenuScript extends cc.Component {
 
     // 更新 menu lbl
     refreshMenu(){
+        DataUtil.countParams();
         this.roundLbl.string = "第 " + DataUtil.levelNum + " 回合";
-        this.populationLbl.string = "" + DataUtil.population;
+        this.populationLbl.string = (DataUtil.laborNum - DataUtil.totalWorkerNum) + "/" + DataUtil.population;
         this.happinessLbl.string = "" + DataUtil.happiness;
         this.cultureLbl.string = "" + DataUtil.culture;
+        if(DataUtil.delCulture > 0){
+            this.delCultureLbl.string = "+" + DataUtil.delCulture;
+        }else{
+            this.delCultureLbl.string = "" + DataUtil.delCulture;
+        }
         this.moneyLbl.string = "" + DataUtil.money;
+        if(DataUtil.delMoney > 0){
+            this.delMoneyLbl.string = "+" + DataUtil.delMoney;
+        }else{
+            this.delMoneyLbl.string = "" + DataUtil.delMoney;
+        }
         this.foodLbl.string = "" + DataUtil.food;
         this.updateButtons();
+    }
+
+    static updateMenu(){
+        DataUtil.countParams();
+        MenuScript.popLbl.string = (DataUtil.laborNum - DataUtil.totalWorkerNum) + "/" + DataUtil.population;
+        MenuScript.hapLbl.string = "" + DataUtil.happiness;
+        MenuScript.culLbl.string = "" + DataUtil.culture;
+        if(DataUtil.delCulture > 0){
+            MenuScript.delCulLbl.string = "+" + DataUtil.delCulture;
+        }else{
+            MenuScript.delCulLbl.string = "" + DataUtil.delCulture;
+        }
+        MenuScript.monLbl.string = "" + DataUtil.money;
+        if(DataUtil.delMoney > 0){
+            MenuScript.delMonLbl.string = "+" + DataUtil.delMoney;
+        }else{
+            MenuScript.delMonLbl.string = "" + DataUtil.delMoney;
+        }
+        MenuScript.fooLbl.string = "" + DataUtil.food;
     }
 
     // update (dt) {}

@@ -6,6 +6,7 @@
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
 import DataUtil, { TileType } from "./DataUtil";
+import MenuScript from "./MenuScript";
 import TileScript from "./TileScript";
 
 const {ccclass, property} = cc._decorator;
@@ -42,6 +43,9 @@ export default class DetailPanelScript extends cc.Component {
     @property(cc.Label)
     workerLbl: cc.Label = null;
 
+    @property(cc.Label)
+    effectLbl: cc.Label = null;
+
     @property(cc.Button)
     minusBtn: cc.Button = null;
     
@@ -56,6 +60,12 @@ export default class DetailPanelScript extends cc.Component {
 
     @property(cc.SpriteFrame)
     pawn_Occupy_SF:cc.SpriteFrame = null;
+
+    @property(cc.Node)
+    HouseNode: cc.Node = null;
+
+    @property(cc.Label)
+    lodgerLbl: cc.Label = null;
 
     static PNode: cc.Node;
 
@@ -113,6 +123,7 @@ export default class DetailPanelScript extends cc.Component {
             this.discLbl.string = this.tileName[tile.tileType];
             this.parentNode.height = 200;
             this.workerNode.active = false;
+            this.HouseNode.active = false;
             return;
         }else{
             this.discLbl.string = this.tileName[tile.tileType] + " · " + DataUtil.deviceAttr[tile.deviceType].name;
@@ -122,6 +133,7 @@ export default class DetailPanelScript extends cc.Component {
             this.parentNode.height = 400;
             this.freshWorkerInfo(tile);
             this.workerNode.active = true;
+            this.HouseNode.active = false;
             this.introLbl.string = "每位工作人员可以产生";
             if(tileAttr.cultureEffect > 0){
                 this.introLbl.string += tileAttr.cultureEffect + "点文化，";
@@ -145,14 +157,22 @@ export default class DetailPanelScript extends cc.Component {
                 this.introLbl.string += "减少" + tileAttr.happinessEffect + "点。"
             }
         }else if(tileAttr.populationEffect > 0){
+            this.parentNode.height = 400;
             this.introLbl.string = "此建筑为住宅建筑，可以吸引" + tileAttr.populationEffect + "名工作人员前来居住。"
             if(tileAttr.happinessEffect > 0){
                 this.introLbl.string += "住在这个建筑中的居民可获得" + tileAttr.happinessEffect + "点幸福度。";
             }
+            this.workerNode.active = false;
+            this.lodgerLbl.string = "居住的人数：" + tileAttr.populationEffect + "\n住在这里的幸福度：" + tile.happinessTotal + "\n\n幸福度来源：\n" + tileAttr.happinessEffect + "来自住宅本身提供";
+            for(let i = 0; i < tile.happinessSource.length; i++){
+                this.lodgerLbl.string += "\n" + tile.happinessSource[i].value + "来自" + tile.happinessSource[i].dist + "格外的" + tile.happinessSource[i].name;
+            }
+            this.HouseNode.active = true;
         }
         else{
             this.parentNode.height = 200;
             this.workerNode.active = false;
+            this.HouseNode.active = false;
             // this.introLbl.string = "";
         }
     }
@@ -175,6 +195,30 @@ export default class DetailPanelScript extends cc.Component {
                 }
                 this.pawnSprites[i].node.active = true;
             }
+        }
+        MenuScript.updateMenu();
+        const tileAttr = DataUtil.deviceAttr[tile.deviceType];
+        this.effectLbl.string = "";
+        if(tileAttr.cultureEffect > 0){
+            this.effectLbl.string += "文化 + " + (tileAttr.cultureEffect * workerNum) + "; ";
+        }
+        if(tileAttr.foodEffect > 0){
+            this.effectLbl.string += "粮食 + " + (tileAttr.foodEffect * workerNum) + "; ";
+        }
+        if(tileAttr.moneyEffect > 0){
+            this.effectLbl.string += "金钱 + "+ (tileAttr.moneyEffect * workerNum) + "; ";
+        }
+        if(tileAttr.moneyEffect < 0){
+            this.effectLbl.string += "金钱 - " + (Math.abs(tileAttr.moneyEffect) * workerNum) + "; ";
+        }
+        if(tileAttr.happinessEffectRange > 0){
+            this.effectLbl.string += "\n" + tileAttr.happinessEffectRange + "格以内住宅幸福度"
+        }
+        if(tileAttr.happinessEffect > 0){
+            this.effectLbl.string += " + " + (tileAttr.happinessEffect * workerNum) + "。"
+        }
+        if(tileAttr.happinessEffect < 0){
+            this.effectLbl.string += " - " + (tileAttr.happinessEffect * workerNum) + "。"
         }
     }
 

@@ -55,8 +55,14 @@ export default class MapScript extends cc.Component {
         // 初始化沙地
         for(let j = 0; j < this.mapHeight; j++){
             const line:Array<TileScript> = [];
+            const q = Math.floor(j / 2);
+            const s = Math.ceil(j / 2);
+            const r = -(q + s);
             for(let i = 0; i < this.mapWidth; i++){
                 const tile = new TileScript();
+                tile.q = q + i;
+                tile.s = s - i;
+                tile.r = r;
                 // 有一定概率生成丘陵地形，其他情况下是平原地形
                 if(Math.random() < this.prop_H){
                     tile.tileType = TileType.Sand_H;
@@ -108,6 +114,7 @@ export default class MapScript extends cc.Component {
         DataUtil.tileArray[midHeight + 2][midWidth - 1].tileType = TileType.Dirt;
         DataUtil.tileArray[midHeight + 2][midWidth].tileType = TileType.Dirt;
         DataUtil.tileArray[midHeight + 2][midWidth + 1].tileType = TileType.Dirt;
+
         // 初始化土壤含水量及工人属性
         for(let j = 0; j < this.mapHeight; j++){
             for(let i = 0; i < this.mapWidth; i++){
@@ -167,7 +174,7 @@ export default class MapScript extends cc.Component {
                         const loc = MapScript.getTouchLoc(releasePoint.x, releasePoint.y);
                         if(loc.x > -1 && loc.y > -1){
                             const tile = DataUtil.tileArray[loc.y][loc.x];
-                            console.log(tile);
+                            // console.log(tile);
                             DetailPanelScript.getInstance().showDetail(tile);
                             this.hexSlected.node.x = tile.x;
                             this.hexSlected.node.y = tile.y;
