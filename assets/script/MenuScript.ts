@@ -6,6 +6,8 @@
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
 import DataUtil from "./DataUtil";
+import DetailPanelScript from "./DetailPanelScript";
+import MapScript, { MapStatus } from "./MapScript";
 
 const {ccclass, property} = cc._decorator;
 
@@ -67,6 +69,9 @@ export default class MenuScript extends cc.Component {
 
     @property(cc.SpriteFrame)
     pressedSF:cc.SpriteFrame = null;
+
+    @property(cc.Node)
+    plantPanel:cc.Node = null;
     // LIFE-CYCLE CALLBACKS:
 
     static popLbl;
@@ -151,11 +156,19 @@ export default class MenuScript extends cc.Component {
         this.researchButton.pressedSprite = this.pressedSF;
         this.checkButton.pressedSprite = this.pressedSF;
         if(this.operState == operType.Move){
+            this.plantPanel.active = false;
+            MapScript.mapStatus = MapStatus.Move;
+            MapScript.updateMoveStatus();
             this.moveButton.normalSprite = this.pressedSF;
             this.moveButton.pressedSprite = this.normalSF;
             this.moveButton.hoverSprite = this.pressedSF;
+        }else{
+            DetailPanelScript.getInstance().hideDetail();
         }
         if(this.operState == operType.Plant){
+            this.plantPanel.active = true;
+            MapScript.mapStatus = MapStatus.Plant;
+            MapScript.updatePlantStatus();
             this.plantButton.normalSprite = this.pressedSF;
             this.plantButton.pressedSprite = this.normalSF;
             this.plantButton.hoverSprite = this.pressedSF;

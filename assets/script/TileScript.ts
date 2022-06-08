@@ -15,6 +15,9 @@ export default class TileScript{
     tileSF:cc.SpriteFrame;
     deviceSF:cc.SpriteFrame;
 
+    tileNode:cc.Node;
+    deviceNode:cc.Node;
+
     // 功能参数
     workerLimits:number;
     workerNum:number;

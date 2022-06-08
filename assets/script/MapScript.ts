@@ -11,8 +11,9 @@ import TileScript from "./TileScript";
 
 const {ccclass, property} = cc._decorator;
 
-enum MapStatus{
+export enum MapStatus{
     Move,
+    Plant,
     Build
 }
 
@@ -143,22 +144,22 @@ export default class MapScript extends cc.Component {
             this.pressPoint = new cc.Vec2(event.touch._point.x, event.touch._point.y);
             MapScript.MapLoc = new cc.Vec2(this.mapNode.x, this.mapNode.y);
             this.ifPressed = true;
-            switch(MapScript.mapStatus){
-                case MapStatus.Move: 
+            // switch(MapScript.mapStatus){
+                // case MapStatus.Move: 
                     cc.game.canvas.style.cursor = "hand";
-                    break;
-            }
+                //    break;
+            // }
         },this);;
         this.mapNode.on(cc.Node.EventType.TOUCH_MOVE,(event)=>{
             // console.log(this.ifPressed);
             if(this.ifPressed){
-                switch(MapScript.mapStatus){
-                    case MapStatus.Move: 
+                // switch(MapScript.mapStatus){
+                //     case MapStatus.Move: 
                         this.mapNode.x += (event.touch._point.x - event.touch._prevPoint.x);
                         this.mapNode.y += (event.touch._point.y- event.touch._prevPoint.y);
                         MapScript.MapLoc = new cc.Vec2(this.mapNode.x, this.mapNode.y);
-                        break;
-                }
+                //         break;
+                // }
             }
         },this);
         this.mapNode.on(cc.Node.EventType.TOUCH_END,(event)=>{
@@ -166,10 +167,9 @@ export default class MapScript extends cc.Component {
             const releasePoint = event.touch._point;
             let delDist = (releasePoint.x - this.pressPoint.x) * (releasePoint.x - this.pressPoint.x) + (releasePoint.y - this.pressPoint.y) * (releasePoint.y - this.pressPoint.y);
             this.ifPressed = false;
-
+            cc.game.canvas.style.cursor = "default";
             switch(MapScript.mapStatus){
                 case MapStatus.Move: 
-                    cc.game.canvas.style.cursor = "default";
                     if(delDist < 4){
                         const loc = MapScript.getTouchLoc(releasePoint.x, releasePoint.y);
                         if(loc.x > -1 && loc.y > -1){
@@ -195,6 +195,7 @@ export default class MapScript extends cc.Component {
                 const newTS = cc.instantiate(this.tileSprites[type]);
                 newTS.y = DataUtil.tileArray[j][i].y;
                 newTS.x = DataUtil.tileArray[j][i].x;
+                DataUtil.tileArray[j][i].tileNode = newTS;
                 this.tilesNode.addChild(newTS);
                 DataUtil.tileArray[j][i].tileSF = newTS.getComponent(cc.Sprite).spriteFrame;
 
@@ -205,8 +206,10 @@ export default class MapScript extends cc.Component {
                     newDC.x = (i - this.mapWidth / 2.0 - (j % 2) * 0.5) * this.tileWidth;
                     this.tilesNode.addChild(newDC);
                     DataUtil.tileArray[j][i].deviceSF = newDC.getComponent(cc.Sprite).spriteFrame;
+                    DataUtil.tileArray[j][i].deviceNode = newDC;
                 }else{
                     DataUtil.tileArray[j][i].deviceSF = null;
+                    DataUtil.tileArray[j][i].deviceNode = null;
                 }
             }
         }
@@ -228,6 +231,35 @@ export default class MapScript extends cc.Component {
             }
         }
         return loc;
+    }
+
+    static updateMoveStatus(){
+        for(let j = 0; j <  DataUtil.tileArray.length; j++){
+            for(let i = 0; i < DataUtil.tileArray[0].length; i++){
+                DataUtil.tileArray[j][i].tileNode.opacity = 255;
+                if(DataUtil.tileArray[j][i].deviceNode != null){
+                    DataUtil.tileArray[j][i].deviceNode.opacity = 255;
+                }
+            }
+        }
+    }
+
+    static updatePlantStatus(){
+        for(let j = 0; j <  DataUtil.tileArray.length; j++){
+            for(let i = 0; i < DataUtil.tileArray[0].length; i++){
+                if(DataUtil.tileArray[j][i].tileType == TileType.Stone || DataUtil.tileArray[j][i].tileType == TileType.Water || DataUtil.tileArray[j][i].deviceType == DeviceType.Rock){
+                    DataUtil.tileArray[j][i].tileNode.opacity = 155;
+                    if(DataUtil.tileArray[j][i].deviceNode != null){
+                        DataUtil.tileArray[j][i].deviceNode.opacity = 155;
+                    }
+                }else{
+                    DataUtil.tileArray[j][i].tileNode.opacity = 255;
+                    if(DataUtil.tileArray[j][i].deviceNode != null){
+                        DataUtil.tileArray[j][i].deviceNode.opacity = 255;
+                    }
+                }
+            }
+        }
     }
     // update (dt) {}
 }

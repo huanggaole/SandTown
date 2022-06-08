@@ -96,6 +96,11 @@ export default class DetailPanelScript extends cc.Component {
         this.parentNode.active = false;
     }
 
+    hideDetail(){
+        this.hexSlected.node.active = false;
+        this.parentNode.active = false;
+    }
+
     showDetail(tile:TileScript){
         this.currentTile = tile;
         this.parentNode.active = true;
