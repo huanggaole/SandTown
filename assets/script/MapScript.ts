@@ -7,6 +7,7 @@
 
 import DataUtil, { DeviceType, TileType } from "./DataUtil";
 import DetailPanelScript from "./DetailPanelScript";
+import PlantScript from "./PlantScript";
 import TileScript from "./TileScript";
 
 const {ccclass, property} = cc._decorator;
@@ -179,6 +180,16 @@ export default class MapScript extends cc.Component {
                             this.hexSlected.node.x = tile.x;
                             this.hexSlected.node.y = tile.y;
                             this.hexSlected.node.active = true;
+                        }
+                    }
+                    break;
+                case MapStatus.Plant:
+                    if(delDist < 4){
+                        const loc = MapScript.getTouchLoc(releasePoint.x, releasePoint.y);
+                        if(loc.x > -1 && loc.y > -1){
+                            // console.log(loc);
+                            const tile = DataUtil.tileArray[loc.y][loc.x];
+                            PlantScript.dealPlant(tile);
                         }
                     }
                     break;

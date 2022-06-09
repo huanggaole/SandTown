@@ -5,6 +5,7 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
+import DialogScript from "./DialogScript";
 import TileScript from "./TileScript";
 
 export enum TileType{
@@ -74,6 +75,11 @@ export default class DataUtil {
     static labourPoints = 0;
 
     static nextLevel(){
+        if(this.food < this.population){
+            DialogScript.ShowDialog("人口数多于小镇自产的食物数，花费" + (this.population - this.food) + "点金币为小镇人口采购足够的粮食。");
+        }else if(this.food > this.population){
+            DialogScript.ShowDialog("小镇自产的食物数多于人口数，卖掉多于的粮食，额外获得" + (this.food - this.population) + "点金币。");
+        }
         this.culture += this.delCulture;
         this.money += this.delMoney;
         this.money += (this.food - this.population);
