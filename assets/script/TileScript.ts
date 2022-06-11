@@ -25,4 +25,12 @@ export default class TileScript{
     // 幸福度的来源
     happinessSource = [];
     happinessTotal = 0;
+
+    // adjtiles
+    leftUpTile:TileScript = null;
+    leftTile:TileScript = null;
+    leftDownTile:TileScript = null;
+    rightTile:TileScript = null;
+    rightUpTile:TileScript = null;
+    rightDownTile:TileScript = null;
 }

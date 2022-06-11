@@ -13,7 +13,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "house",
+    "_name": "cactus1",
     "_objFlags": 0,
     "_parent": null,
     "_children": [],
@@ -36,8 +36,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 88,
-      "height": 70
+      "width": 22,
+      "height": 34
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -88,9 +88,7 @@
     ],
     "_srcBlendFactor": 770,
     "_dstBlendFactor": 771,
-    "_spriteFrame": {
-      "__uuid__": "7268f0df-0c50-470d-af7d-ecd939d30035"
-    },
+    "_spriteFrame": null,
     "_type": 0,
     "_sizeMode": 1,
     "_fillType": 0,
@@ -111,7 +109,7 @@
       "__id__": 1
     },
     "asset": {
-      "__id__": 0
+      "__uuid__": "4015ecb1-a05d-44b2-a764-0791946b5a1f"
     },
     "fileId": "",
     "sync": false

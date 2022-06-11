@@ -28,6 +28,9 @@ export default class DialogScript extends cc.Component {
         DialogScript.PNode = this.pNode;
         DialogScript.InfoLbl = this.infoLabel;
         this.OKBtn.node.on("click",()=>{
+            if(DialogScript.InfoLbl.string.includes("你的本轮游戏失败了")){
+                cc.director.loadScene("MainScene");
+            }
             DialogScript.infoList.shift();
             if(DialogScript.infoList.length == 0){
                 this.pNode.active = false;

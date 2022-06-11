@@ -1,20 +1,20 @@
 {
   "ver": "2.3.5",
-  "uuid": "ad42f55d-3450-4c46-8480-b349f7887c93",
+  "uuid": "239d9a30-b943-4bf2-ad95-63e63a807f8f",
   "type": "sprite",
   "wrapMode": "clamp",
   "filterMode": "bilinear",
   "premultiplyAlpha": false,
   "genMipmaps": false,
   "packable": true,
-  "width": 65,
+  "width": 100,
   "height": 100,
   "platformSettings": {},
   "subMetas": {
-    "沙地云杉": {
+    "yellow_panel": {
       "ver": "1.0.4",
-      "uuid": "98030572-0a96-4a1f-972b-cf95862aeecd",
-      "rawTextureUuid": "ad42f55d-3450-4c46-8480-b349f7887c93",
+      "uuid": "3936207a-5d66-4662-8e8a-105c981f3f92",
+      "rawTextureUuid": "239d9a30-b943-4bf2-ad95-63e63a807f8f",
       "trimType": "auto",
       "trimThreshold": 1,
       "rotated": false,
@@ -22,14 +22,14 @@
       "offsetY": 0,
       "trimX": 0,
       "trimY": 0,
-      "width": 33,
-      "height": 50,
-      "rawWidth": 33,
-      "rawHeight": 50,
-      "borderTop": 0,
-      "borderBottom": 0,
-      "borderLeft": 0,
-      "borderRight": 0,
+      "width": 100,
+      "height": 100,
+      "rawWidth": 100,
+      "rawHeight": 100,
+      "borderTop": 8,
+      "borderBottom": 8,
+      "borderLeft": 8,
+      "borderRight": 8,
       "subMetas": {}
     }
   }

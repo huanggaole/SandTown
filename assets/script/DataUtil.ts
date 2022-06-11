@@ -5,7 +5,10 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
+import DetailPanelScript from "./DetailPanelScript";
 import DialogScript from "./DialogScript";
+import MapScript from "./MapScript";
+import PlantScript from "./PlantScript";
 import TileScript from "./TileScript";
 
 export enum TileType{
@@ -19,16 +22,37 @@ export enum TileType{
     Grass_H
 }
 export enum DeviceType{
+    Empty,
+    SuoSuoShu,
+    Shaji,
+    HuaBang,
+    YunShan,
+    CeBo,
+    Farm,
+    FarmHigh,
+    CaoFangGe,
     Cactus,
     Rock,
-    Farm_Empty,
-    Farm,
     VillageCommittee,
     House1,
     House2,
     House3,
     House4,
-    Shop1,
+    Shop1
+}
+
+export class PlantFunc{
+    liveRate:number;
+    liveRatePerWorker:number;
+    SWCEffect:number;
+    intro:string;
+
+    constructor(_liveRate:number, _liveRatePerWorker:number, _swceffect:number, _intro:string){
+        this.liveRate = _liveRate;
+        this.liveRatePerWorker = _liveRatePerWorker;
+        this.SWCEffect = _swceffect;
+        this.intro = _intro;
+    }
 }
 
 export class DeviceFunc{
@@ -43,7 +67,9 @@ export class DeviceFunc{
     moneyEffect:number;
     foodEffect:number;
 
-    constructor(_nm:string,_wLimits:number,_wNum:number,pE:number,hE:number,hER:number,cE:number,mE:number,fE:number){
+    plantFunc:PlantFunc;
+
+    constructor(_nm:string,_wLimits:number,_wNum:number,pE:number,hE:number,hER:number,cE:number,mE:number,fE:number,_plantfunc = null){
         this.name = _nm;
         this.workerLimits = _wLimits;
         this.workerNum = _wNum;
@@ -53,6 +79,7 @@ export class DeviceFunc{
         this.cultureEffect = cE;
         this.moneyEffect = mE;
         this.foodEffect = fE;
+        this.plantFunc = _plantfunc;
     }
 }
 
@@ -74,7 +101,13 @@ export default class DataUtil {
 
     static labourPoints = 0;
 
+    static debtLeft = -1;
+
     static nextLevel(){
+        if(this.laborNum < 0){
+            DialogScript.ShowDialog("小镇当前的可用劳动人力点数为赤字，本回合无法推进。请调节工作地点的人力分配，解决可用劳动人力点数的赤字问题后方可继续下一回合。");
+            return;
+        }
         if(this.food < this.population){
             DialogScript.ShowDialog("人口数多于小镇自产的食物数，花费" + (this.population - this.food) + "点金币为小镇人口采购足够的粮食。");
         }else if(this.food > this.population){
@@ -85,6 +118,29 @@ export default class DataUtil {
         this.money += (this.food - this.population);
         this.levelNum++;
         this.laborNum = this.population;
+        
+        // 提升土壤含水量
+        PlantScript.improveSWC();
+        // 土壤含水量的侵蚀
+        this.erosionLand();
+        // 树木的死亡
+        PlantScript.killPlant();
+
+        if(this.money < 0 && this.debtLeft > 0){
+            this.debtLeft--;
+        }else if(this.money < 0 && this.debtLeft < 0){
+            this.debtLeft = 3;
+        }else if(this.money >= 0){
+            this.debtLeft = -1;
+        }
+        if(this.money < 0 && this.debtLeft == 0){
+            DialogScript.ShowDialog("很遗憾，你的城镇由于连续3回合财政赤字，不得不宣布破产。在经过" + this.levelNum + "回合的坚持后，你的本轮游戏失败了。");
+        }
+        if(this.debtLeft > 0){
+            DialogScript.ShowDialog("目前小镇拥有的金币数为赤字。请在" + this.debtLeft + "回合内扭亏为盈，否则小镇破产，游戏结束。");
+        }
+
+        DetailPanelScript.getInstance().hideDetail();
     }
 
     static countParams(){
@@ -145,12 +201,160 @@ export default class DataUtil {
         this.happiness = Math.floor(this.happiness / this.population);
     }
 
+    static erosionLand(){
+        const newSWC = [];
+        for(let j = 0; j < this.tileArray.length; j++){
+            const line = [];
+            for(let i = 0; i < this.tileArray[0].length; i++){
+                const tile = this.tileArray[j][i];
+                let swc = tile.SWC * 0.7;
+                if(tile.rightUpTile){
+                    swc += tile.rightUpTile.SWC * 0.05;
+                } else {
+                    swc += tile.SWC * 0.05;
+                }
+                if(tile.rightTile){
+                    swc += tile.rightTile.SWC * 0.05;
+                } else {
+                    swc += tile.SWC * 0.05;
+                }
+                if(tile.rightDownTile){
+                    swc += tile.rightDownTile.SWC * 0.05;
+
+                } else {
+                    swc += tile.SWC * 0.05;
+                }
+                if(tile.leftDownTile){
+                    swc += tile.leftDownTile.SWC * 0.05;
+
+                } else {
+                    swc += tile.SWC * 0.05;
+                }
+                if(tile.leftTile){
+                    swc += tile.leftTile.SWC * 0.05;
+
+                } else {
+                    swc += tile.SWC * 0.05;
+                }
+                if(tile.leftUpTile){
+                    swc += tile.leftUpTile.SWC * 0.05;
+
+                } else {
+                    swc += tile.SWC * 0.05;
+                }
+                line.push(swc);
+            }
+            newSWC.push(line);
+        }
+        var upToDirt = 0;
+        var upToGrass = 0;
+        var downToDirt = 0;
+        var downToSand = 0;
+        for(let j = 0; j < this.tileArray.length; j++){
+            for(let i = 0; i < this.tileArray[0].length; i++){
+                const tile = this.tileArray[j][i];
+                if(tile.tileType == TileType.Sand && newSWC[j][i] >= 10){
+                    upToDirt ++;
+                    tile.tileType = TileType.Dirt;
+                } else if (tile.tileType == TileType.Sand_H && newSWC[j][i] >= 10){
+                    upToDirt ++;
+                    tile.tileType = TileType.Dirt_H;
+                } else if (tile.tileType == TileType.Dirt && newSWC[j][i] >= 15){
+                    upToGrass ++;
+                    tile.tileType = TileType.Grass;
+                } else if(tile.tileType == TileType.Dirt_H && newSWC[j][i] >= 15){
+                    upToGrass ++;
+                    tile.tileType = TileType.Grass_H;
+                } else if((tile.tileType == TileType.Grass || tile.tileType == TileType.Water) && newSWC[j][i] < 15){
+                    downToDirt ++;
+                    tile.tileType = TileType.Dirt;
+                } else if(tile.tileType == TileType.Grass_H && newSWC[j][i] < 15){
+                    downToDirt ++;
+                    tile.tileType = TileType.Dirt_H;
+                } else if((tile.tileType == TileType.Dirt || tile.tileType == TileType.Stone) && newSWC[j][i] < 10){
+                    downToSand ++;
+                    tile.tileType = TileType.Sand;
+                } else if(tile.tileType == TileType.Dirt_H && newSWC[j][i] < 10){
+                    downToSand ++;
+                    tile.tileType = TileType.Sand_H;
+                }
+                /*
+                if(tile.SWC < 10 && newSWC[j][i] >= 10){
+                    upToDirt ++;
+                    if(tile.tileType <=4){
+                        tile.tileType = TileType.Dirt;
+                    }else{
+                        tile.tileType = TileType.Dirt_H;
+                    }
+                }else if(tile.SWC < 15 && newSWC[j][i] >=15 && tile.tileType != TileType.Stone){
+                    upToGrass ++;
+                    if(tile.tileType <=4){
+                        tile.tileType = TileType.Grass;
+                    }else{
+                        tile.tileType = TileType.Grass_H;
+                    }
+                }else if(tile.SWC >=15 && newSWC[j][i] < 15 && tile.tileType != TileType.Stone){
+                    downToDirt ++;
+                    if(tile.tileType <=4){
+                        tile.tileType = TileType.Dirt;
+                    }else{
+                        tile.tileType = TileType.Dirt_H;
+                    }
+                }else if(tile.SWC >=10 && newSWC[j][i] < 10){
+                    downToSand ++;
+                    if(tile.tileType <=4){
+                        tile.tileType = TileType.Sand;
+                    }else{
+                        tile.tileType = TileType.Sand_H;
+                    }
+                }
+                */
+                tile.SWC = newSWC[j][i];
+                // console.log();
+                tile.tileNode.getComponent(cc.Sprite).spriteFrame = tile.tileSF = (MapScript.tileSprites[tile.tileType] as cc.Prefab).data.getComponent(cc.Sprite).spriteFrame;
+                // tile.tileNode.getComponent(cc.sprite)
+            }
+        }
+        console.log(upToDirt , upToGrass , downToDirt , downToSand);
+        if(upToDirt > 0 || upToGrass > 0 || downToDirt > 0 || downToSand > 0){
+            let res = "";
+            if(upToDirt > 0 || upToGrass > 0){
+                res += "在人工治理的努力下";
+                if(upToDirt > 0){
+                    res += "，有" + upToDirt + "个地图块改善为泥土块";
+                }
+                if(upToGrass > 0){
+                    res += "，有" + upToGrass + "个地图块改善为草地块";
+                }
+                res += "。\n";
+            }
+            if(downToSand > 0 || downToDirt > 0){
+                res += "受恶劣环境的影响";
+                if(downToSand > 0){
+                    res += "，有" + downToSand + "个地图块退化为沙地块";
+                }
+                if(downToDirt > 0){
+                    res += "，有" + downToDirt + "个地图块退化为泥地块";
+                }
+                res += "。";
+            }
+            DialogScript.ShowDialog(res);
+        }
+    }
+
     static deviceAttr = [
+        new DeviceFunc("空地", 0, 0, 0, 0, 0, 0, 0, 0),
+        new DeviceFunc("梭梭树", 2, 0, 0, 0, 0, 0, 0, 0, new PlantFunc(33, 33, 3, "")),
+        new DeviceFunc("沙棘", 1, 0, 0, 0, 0, 0, 0, 1, new PlantFunc(60, 0, 1, "")),
+        new DeviceFunc("花棒", 1, 0, 0, 0, 0, 0, 0, 0, new PlantFunc(40, 40, 2, "")),
+        new DeviceFunc("沙地云杉", 0, 0, 0, 0, 0, 0, 0, 0, new PlantFunc(90, 0, 1, "")),
+        new DeviceFunc("侧柏", 0, 0, 0, 0, 0, 0, 0, 0, new PlantFunc(100, 0, 2, "")),
+        new DeviceFunc("农田", 3, 3, 0, 0, 0, 0, 0, 2),
+        new DeviceFunc("高级农田", 0, 0, 0, 0, 0, 0, 0, 0),
+        new DeviceFunc("草方格", 0, 0, 0, 0, 0, 0, 0, 0),
         new DeviceFunc("仙人掌", 0, 0, 0, 0, 0, 0, 0, 0),
         new DeviceFunc("岩石", 0, 0, 0, 0, 0, 0, 0, 0),
-        new DeviceFunc("荒废农田", 0, 0, 0, 0, 0, 0, 0, 0),
-        new DeviceFunc("农田", 3, 3, 0, 0, 0, 0, 0, 2),
-        new DeviceFunc("村委会", 2, 2, 0, 10, 2, 3, -2, 0),
+        new DeviceFunc("村委会", 2, 2, 0, 5, 2, 3, -2, 0),
         new DeviceFunc("民居", 0, 0, 5, 10, 0, 0, 0, 0),
         new DeviceFunc("民居2", 0, 0, 0, 0, 0, 0, 0, 0),
         new DeviceFunc("民居3", 0, 0, 0, 0, 0, 0, 0, 0),

@@ -42,9 +42,12 @@ export default class MapScript extends cc.Component {
     @property([cc.Prefab])
     tileSprites: Array<cc.Prefab> = [];
 
-    @property([cc.Prefab])
-    deviceSprites: Array<cc.Prefab> = [];
+    @property(cc.Prefab)
+    EmptyTile: cc.Prefab = null;
 
+    @property([cc.SpriteFrame])
+    deviceSprites: Array<cc.SpriteFrame> = [];
+    static deviceSFs;
     // LIFE-CYCLE CALLBACKS:
 
     // onLoad () {}
@@ -53,7 +56,11 @@ export default class MapScript extends cc.Component {
     ifPressed = false;
     pressPoint: cc.Vec2;
     static MapLoc: cc.Vec2;
+    static tileSprites;
+
     start () {
+        MapScript.tileSprites = this.tileSprites;
+        MapScript.deviceSFs = this.deviceSprites; 
         // 初始化沙地
         for(let j = 0; j < this.mapHeight; j++){
             const line:Array<TileScript> = [];
@@ -86,6 +93,40 @@ export default class MapScript extends cc.Component {
                 line.push(tile);
             }
             DataUtil.tileArray.push(line);
+        }
+        // 计算相邻的图块
+        for(let j = 0; j < this.mapHeight; j++){
+            for(let i = 0; i < this.mapWidth; i++){
+                const tile = DataUtil.tileArray[j][i];
+                if(i > 0){
+                    tile.leftTile = DataUtil.tileArray[j][i - 1];
+                }
+                if(i < this.mapWidth - 2){
+                    tile.rightTile = DataUtil.tileArray[j][i + 1];
+                }
+                if(j % 2 == 0 && j > 0){
+                    tile.leftDownTile = DataUtil.tileArray[j - 1][i];
+                    if(i < this.mapWidth - 2){
+                        tile.rightDownTile =  DataUtil.tileArray[j - 1][i + 1];
+                    }
+                }else if(j % 2 == 1){
+                    if(i > 0){
+                        tile.leftDownTile = DataUtil.tileArray[j - 1][i - 1];
+                    }
+                    tile.rightDownTile =  DataUtil.tileArray[j - 1][i];
+                }
+                if(j % 2 == 0 && j < this.mapHeight - 2){
+                    tile.leftUpTile = DataUtil.tileArray[j + 1][i];
+                    if(i < this.mapWidth - 2){
+                        tile.rightUpTile = DataUtil.tileArray[j + 1][i + 1];
+                    }
+                }else if(j % 2 == 1 && j < this.mapHeight - 2){
+                    if(i > 0){
+                        tile.leftUpTile = DataUtil.tileArray[j + 1][i - 1];
+                    }
+                    tile.rightUpTile = DataUtil.tileArray[j + 1][i];
+                }
+            }
         }
         // 初始化居民区与农田
         const midHeight = Math.floor(this.mapHeight/2);
@@ -128,7 +169,7 @@ export default class MapScript extends cc.Component {
                 }else if(tile.tileType == TileType.Dirt){
                     tile.SWC = 12;
                 }else if(tile.tileType == TileType.Water){
-                    tile.SWC = 55;
+                    tile.SWC = 30;
                 }else{
                     tile.SWC = 3;
                 }
@@ -212,15 +253,20 @@ export default class MapScript extends cc.Component {
 
                 let devicetype = DataUtil.tileArray[j][i].deviceType;
                 if(devicetype > -1){
-                    const newDC = cc.instantiate(this.deviceSprites[devicetype]);
+                    const newDC = cc.instantiate(this.EmptyTile);
+                    DataUtil.tileArray[j][i].deviceSF = this.deviceSprites[devicetype];
+                    newDC.getComponent(cc.Sprite).spriteFrame = this.deviceSprites[devicetype];
                     newDC.y = (j - this.mapHeight / 2.0) * Math.floor(this.tileHeight * 0.75 - 2);
                     newDC.x = (i - this.mapWidth / 2.0 - (j % 2) * 0.5) * this.tileWidth;
                     this.tilesNode.addChild(newDC);
-                    DataUtil.tileArray[j][i].deviceSF = newDC.getComponent(cc.Sprite).spriteFrame;
                     DataUtil.tileArray[j][i].deviceNode = newDC;
                 }else{
+                    const newDC = cc.instantiate(this.EmptyTile);
+                    newDC.y = (j - this.mapHeight / 2.0) * Math.floor(this.tileHeight * 0.75 - 2);
+                    newDC.x = (i - this.mapWidth / 2.0 - (j % 2) * 0.5) * this.tileWidth;
+                    this.tilesNode.addChild(newDC);
                     DataUtil.tileArray[j][i].deviceSF = null;
-                    DataUtil.tileArray[j][i].deviceNode = null;
+                    DataUtil.tileArray[j][i].deviceNode = newDC;
                 }
             }
         }

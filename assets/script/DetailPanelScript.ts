@@ -6,6 +6,7 @@
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
 import DataUtil, { TileType } from "./DataUtil";
+import DialogScript from "./DialogScript";
 import MenuScript from "./MenuScript";
 import TileScript from "./TileScript";
 
@@ -87,6 +88,10 @@ export default class DetailPanelScript extends cc.Component {
             }
         },this);
         this.addBtn.node.on("click",()=>{
+            if(DataUtil.labourPoints <=0){
+                DialogScript.ShowDialog("小镇当前已没有多余的人力点数。请先减少其他工作场所的工作人员以增加可用的人力点数。");
+                return;
+            }
             if(this.currentTile.workerNum < this.currentTile.workerLimits){
                 this.currentTile.workerNum++;
                 this.freshWorkerInfo(this.currentTile);
@@ -105,7 +110,7 @@ export default class DetailPanelScript extends cc.Component {
         this.currentTile = tile;
         this.parentNode.active = true;
         this.tile_icon.spriteFrame = tile.tileSF;
-        this.SWCLbl.string = "土壤含水量:" + tile.SWC + "%";
+        this.SWCLbl.string = "土壤含水量:" + Math.round(tile.SWC * 10) / 10.0 + "%";
         if(tile.deviceSF == null){
             this.device_icon.node.active = false;
         }else{
@@ -134,7 +139,26 @@ export default class DetailPanelScript extends cc.Component {
             this.discLbl.string = this.tileName[tile.tileType] + " · " + DataUtil.deviceAttr[tile.deviceType].name;
         }
         const tileAttr = DataUtil.deviceAttr[tile.deviceType];
-        if(tileAttr.workerLimits > 0){
+        if(tileAttr.plantFunc != null){
+            if(tileAttr.workerLimits > 0){
+                this.parentNode.height = 400;
+                this.freshWorkerInfo(tile);
+                this.workerNode.active = true;
+                this.HouseNode.active = false;
+            }else{
+                this.parentNode.height = 200;
+                this.workerNode.active = false;
+                this.HouseNode.active = false;
+            }
+            this.introLbl.string = tileAttr.name + "每回合的存活率为" + tileAttr.plantFunc.liveRate + "%，";
+            if(tileAttr.plantFunc.liveRatePerWorker > 0){
+                this.introLbl.string += "每个工作人员可以提升植物" + tileAttr.plantFunc.liveRatePerWorker + "%的存活率，";
+            }
+            this.introLbl.string += "存活时每回合可以提升所在图块" + tileAttr.plantFunc.SWCEffect + "%的土壤含水量。";
+            if(tileAttr.foodEffect > 0){
+                this.introLbl.string += "每位工作人员可以产生" + tileAttr.foodEffect + "点粮食。";
+            }
+        } else if(tileAttr.workerLimits > 0){
             this.parentNode.height = 400;
             this.freshWorkerInfo(tile);
             this.workerNode.active = true;
@@ -204,6 +228,10 @@ export default class DetailPanelScript extends cc.Component {
         MenuScript.updateMenu();
         const tileAttr = DataUtil.deviceAttr[tile.deviceType];
         this.effectLbl.string = "";
+        if(tileAttr.plantFunc != null){
+            this.effectLbl.string += "每回合土壤含水量 + " + (tileAttr.plantFunc.SWCEffect) + "%; \n";
+            this.effectLbl.string += "存活率：" + (tileAttr.plantFunc.liveRate + tileAttr.plantFunc.liveRatePerWorker * workerNum) + "%; ";
+        }
         if(tileAttr.cultureEffect > 0){
             this.effectLbl.string += "文化 + " + (tileAttr.cultureEffect * workerNum) + "; ";
         }

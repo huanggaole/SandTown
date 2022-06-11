@@ -506,31 +506,52 @@
         "__uuid__": "0ba77279-90f0-4d6f-9cd9-d38a654fa185"
       }
     ],
+    "EmptyTile": {
+      "__uuid__": "4015ecb1-a05d-44b2-a764-0791946b5a1f"
+    },
     "deviceSprites": [
+      null,
       {
-        "__uuid__": "68163032-778d-489f-9b28-85ab69151ed7"
+        "__uuid__": "aaf830a7-312a-4ee4-af76-1beac0a92d0e"
       },
       {
-        "__uuid__": "c07875c7-fc85-4cc2-82f9-a3ede199b44c"
+        "__uuid__": "06eb93ce-512c-4807-8114-b6944d7e2825"
       },
       {
-        "__uuid__": "90f6e3ef-76c6-4697-9e7a-a26914648152"
+        "__uuid__": "5cebb664-a418-4d66-b6c6-ee7bdaa11431"
       },
       {
-        "__uuid__": "a0e640a0-505e-477d-8f18-d1d7e789d328"
+        "__uuid__": "98030572-0a96-4a1f-972b-cf95862aeecd"
       },
       {
-        "__uuid__": "64dc86f8-f767-4439-9749-3e39df2c15a1"
+        "__uuid__": "4ff23fcc-009c-4fd0-ae08-cd5aaddc4778"
       },
       {
-        "__uuid__": "90e5cc0a-e247-4470-b3b6-d3f5aa80dd44"
+        "__uuid__": "b46721af-f0a8-4e2a-b063-9435db667802"
+      },
+      null,
+      null,
+      {
+        "__uuid__": "f7d9a1e6-7eed-4189-8a6e-b2a733e7ceaf"
+      },
+      {
+        "__uuid__": "ab05a681-face-4da0-a92a-3bc566bc6b9d"
+      },
+      {
+        "__uuid__": "7268f0df-0c50-470d-af7d-ecd939d30035"
+      },
+      {
+        "__uuid__": "1d42f781-347b-4162-9d28-45210bdde11a"
       },
       null,
       null,
       null,
       {
-        "__uuid__": "cd6c0112-f802-4aa0-a58d-2e976e45001b"
-      }
+        "__uuid__": "cec5ca7d-e303-4853-bde3-5cb33550ec29"
+      },
+      null,
+      null,
+      null
     ],
     "_id": "83cw/vhn9NnJxONrbxg1o2"
   },
@@ -6625,8 +6646,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 65,
-      "height": 100
+      "width": 33,
+      "height": 50
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -6644,8 +6665,8 @@
         0,
         0,
         1,
-        0.5,
-        0.5,
+        1,
+        1,
         1
       ]
     },
@@ -8052,6 +8073,9 @@
     },
     "pressedSF": {
       "__uuid__": "5b1f7f3e-d92f-478c-84ed-57ec9a79e220"
+    },
+    "infoLbl": {
+      "__id__": 153
     },
     "_id": "e6VbW7FuBKnqixKF0YEwz8"
   },
