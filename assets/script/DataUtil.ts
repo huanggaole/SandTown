@@ -45,12 +45,14 @@ export class PlantFunc{
     liveRate:number;
     liveRatePerWorker:number;
     SWCEffect:number;
+    highestSWC:number;
     intro:string;
 
-    constructor(_liveRate:number, _liveRatePerWorker:number, _swceffect:number, _intro:string){
+    constructor(_liveRate:number, _liveRatePerWorker:number, _swceffect:number, _highestSWC:number, _intro:string){
         this.liveRate = _liveRate;
         this.liveRatePerWorker = _liveRatePerWorker;
         this.SWCEffect = _swceffect;
+        this.highestSWC = _highestSWC;
         this.intro = _intro;
     }
 }
@@ -344,11 +346,11 @@ export default class DataUtil {
 
     static deviceAttr = [
         new DeviceFunc("空地", 0, 0, 0, 0, 0, 0, 0, 0),
-        new DeviceFunc("梭梭树", 2, 0, 0, 0, 0, 0, 0, 0, new PlantFunc(33, 33, 3, "")),
-        new DeviceFunc("沙棘", 1, 0, 0, 0, 0, 0, 0, 1, new PlantFunc(60, 0, 1, "")),
-        new DeviceFunc("花棒", 1, 0, 0, 0, 0, 0, 0, 0, new PlantFunc(40, 40, 2, "")),
-        new DeviceFunc("沙地云杉", 0, 0, 0, 0, 0, 0, 0, 0, new PlantFunc(90, 0, 1, "")),
-        new DeviceFunc("侧柏", 0, 0, 0, 0, 0, 0, 0, 0, new PlantFunc(100, 0, 2, "")),
+        new DeviceFunc("梭梭树", 2, 0, 0, 0, 0, 0, 0, 0, new PlantFunc(33, 33, 3, 16, "")),
+        new DeviceFunc("沙棘", 1, 0, 0, 0, 0, 0, 0, 1, new PlantFunc(60, 0, 1, 15, "")),
+        new DeviceFunc("花棒", 1, 0, 0, 0, 0, 0, 0, 0, new PlantFunc(40, 40, 2, 17, "")),
+        new DeviceFunc("沙地云杉", 0, 0, 0, 0, 0, 0, 0, 0, new PlantFunc(90, 0, 1, 18, "")),
+        new DeviceFunc("侧柏", 0, 0, 0, 0, 0, 0, 0, 0, new PlantFunc(100, 0, 2, 20, "")),
         new DeviceFunc("农田", 3, 3, 0, 0, 0, 0, 0, 2),
         new DeviceFunc("高级农田", 0, 0, 0, 0, 0, 0, 0, 0),
         new DeviceFunc("草方格", 0, 0, 0, 0, 0, 0, 0, 0),

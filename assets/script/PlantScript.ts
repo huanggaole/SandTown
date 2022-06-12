@@ -83,8 +83,8 @@ export default class PlantScript extends cc.Component {
                 const tile = DataUtil.tileArray[j][i];
                 if(tile.deviceType >= 0 && DataUtil.deviceAttr[tile.deviceType].plantFunc != null){
                     tile.SWC += DataUtil.deviceAttr[tile.deviceType].plantFunc.SWCEffect;
-                    if(tile.SWC > 20){
-                        tile.SWC = 20;
+                    if(tile.SWC > DataUtil.deviceAttr[tile.deviceType].plantFunc.highestSWC){
+                        tile.SWC = DataUtil.deviceAttr[tile.deviceType].plantFunc.highestSWC;
                     }
                 }
             }

@@ -152,11 +152,11 @@ export default class DetailPanelScript extends cc.Component {
             }
             this.introLbl.string = tileAttr.name + "每回合的存活率为" + tileAttr.plantFunc.liveRate + "%，";
             if(tileAttr.plantFunc.liveRatePerWorker > 0){
-                this.introLbl.string += "每个工作人员可以提升植物" + tileAttr.plantFunc.liveRatePerWorker + "%的存活率，";
+                this.introLbl.string += "每个工人提升植物" + tileAttr.plantFunc.liveRatePerWorker + "%的存活率，";
             }
-            this.introLbl.string += "存活时每回合可以提升所在图块" + tileAttr.plantFunc.SWCEffect + "%的土壤含水量。";
+            this.introLbl.string += "每回合提升所在图块" + tileAttr.plantFunc.SWCEffect + "%的土壤含水量，最高提升至" + tileAttr.plantFunc.highestSWC + "%。";
             if(tileAttr.foodEffect > 0){
-                this.introLbl.string += "每位工作人员可以产生" + tileAttr.foodEffect + "点粮食。";
+                this.introLbl.string += "每位工人产生" + tileAttr.foodEffect + "点粮食。";
             }
         } else if(tileAttr.workerLimits > 0){
             this.parentNode.height = 400;
@@ -230,6 +230,7 @@ export default class DetailPanelScript extends cc.Component {
         this.effectLbl.string = "";
         if(tileAttr.plantFunc != null){
             this.effectLbl.string += "每回合土壤含水量 + " + (tileAttr.plantFunc.SWCEffect) + "%; \n";
+            this.effectLbl.string += "提升土壤含水量上限为" + (tileAttr.plantFunc.highestSWC) + "%; \n";
             this.effectLbl.string += "存活率：" + (tileAttr.plantFunc.liveRate + tileAttr.plantFunc.liveRatePerWorker * workerNum) + "%; ";
         }
         if(tileAttr.cultureEffect > 0){
