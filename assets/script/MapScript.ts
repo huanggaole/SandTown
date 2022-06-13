@@ -5,6 +5,7 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
+import CheckClass from "./CheckScript";
 import DataUtil, { DeviceType, TileType } from "./DataUtil";
 import DetailPanelScript from "./DetailPanelScript";
 import PlantScript from "./PlantScript";
@@ -15,7 +16,8 @@ const {ccclass, property} = cc._decorator;
 export enum MapStatus{
     Move,
     Plant,
-    Build
+    Build,
+    check
 }
 
 @ccclass
@@ -47,6 +49,10 @@ export default class MapScript extends cc.Component {
 
     @property([cc.SpriteFrame])
     deviceSprites: Array<cc.SpriteFrame> = [];
+
+    @property([cc.Prefab])
+    iconPrefab: Array<cc.Prefab> = [];
+
     static deviceSFs;
     // LIFE-CYCLE CALLBACKS:
 
@@ -57,9 +63,11 @@ export default class MapScript extends cc.Component {
     pressPoint: cc.Vec2;
     static MapLoc: cc.Vec2;
     static tileSprites;
+    static iconPrefabs;
 
     start () {
         MapScript.tileSprites = this.tileSprites;
+        MapScript.iconPrefabs = this.iconPrefab;
         MapScript.deviceSFs = this.deviceSprites; 
         // 初始化沙地
         for(let j = 0; j < this.mapHeight; j++){
@@ -212,6 +220,7 @@ export default class MapScript extends cc.Component {
             cc.game.canvas.style.cursor = "default";
             switch(MapScript.mapStatus){
                 case MapStatus.Move: 
+                case MapStatus.check:
                     if(delDist < 4){
                         const loc = MapScript.getTouchLoc(releasePoint.x, releasePoint.y);
                         if(loc.x > -1 && loc.y > -1){
@@ -290,7 +299,9 @@ export default class MapScript extends cc.Component {
         return loc;
     }
 
-    static updateMoveStatus(){
+    static clearPlantStatus(){
+        
+        console.log("clear");
         for(let j = 0; j <  DataUtil.tileArray.length; j++){
             for(let i = 0; i < DataUtil.tileArray[0].length; i++){
                 DataUtil.tileArray[j][i].tileNode.opacity = 255;
@@ -299,6 +310,7 @@ export default class MapScript extends cc.Component {
                 }
             }
         }
+        
     }
 
     static updatePlantStatus(){
@@ -313,6 +325,34 @@ export default class MapScript extends cc.Component {
                     DataUtil.tileArray[j][i].tileNode.opacity = 255;
                     if(DataUtil.tileArray[j][i].deviceNode != null){
                         DataUtil.tileArray[j][i].deviceNode.opacity = 255;
+                    }
+                }
+            }
+        }
+    }
+
+    static clearCheckStatus(){
+        for(let j = 0; j < DataUtil.tileArray.length; j++){
+            for(let i = 0; i < DataUtil.tileArray[0].length; i++){
+                const tile:TileScript = DataUtil.tileArray[j][i];
+                tile.deviceNode.removeAllChildren();
+            }
+        }
+    }
+    static updateCheckStatus(){
+        for(let j = 0; j < DataUtil.tileArray.length; j++){
+            for(let i = 0; i < DataUtil.tileArray[0].length; i++){
+                const tile:TileScript = DataUtil.tileArray[j][i];
+                tile.deviceNode.removeAllChildren();
+                if(CheckClass.checkIndex == 0){
+                    if(tile.deviceType > 0){
+                        const device = DataUtil.deviceAttr[tile.deviceType];
+                        if(device.populationEffect > 0){
+                            const node = cc.instantiate(this.iconPrefabs[0]);
+                            node.getChildByName("people").getChildByName("lbl").getComponent(cc.Label).string = "" + device.populationEffect;
+                            node.getChildByName("happiness").getChildByName("lbl").getComponent(cc.Label).string = "" + tile.happinessTotal;
+                            tile.deviceNode.addChild(node);
+                        }
                     }
                 }
             }

@@ -171,6 +171,7 @@ export default class DataUtil {
                 }
             }
         }
+        this.labourPoints = this.laborNum - this.totalWorkerNum;
         // 计算幸福度及来源
         for(let j = 0; j < this.tileArray.length; j++){
             for(let i = 0; i < this.tileArray[0].length; i++){
@@ -346,8 +347,8 @@ export default class DataUtil {
 
     static deviceAttr = [
         new DeviceFunc("空地", 0, 0, 0, 0, 0, 0, 0, 0),
-        new DeviceFunc("梭梭树", 2, 0, 0, 0, 0, 0, 0, 0, new PlantFunc(33, 33, 3, 16, "")),
-        new DeviceFunc("沙棘", 1, 0, 0, 0, 0, 0, 0, 1, new PlantFunc(60, 0, 1, 15, "")),
+        new DeviceFunc("梭梭树", 1, 0, 0, 0, 0, 0, 0, 0, new PlantFunc(45, 45, 3, 16, "")),
+        new DeviceFunc("沙棘", 2, 0, 0, 0, 0, 0, 0, 1, new PlantFunc(33, 33, 1, 15, "")),
         new DeviceFunc("花棒", 1, 0, 0, 0, 0, 0, 0, 0, new PlantFunc(40, 40, 2, 17, "")),
         new DeviceFunc("沙地云杉", 0, 0, 0, 0, 0, 0, 0, 0, new PlantFunc(90, 0, 1, 18, "")),
         new DeviceFunc("侧柏", 0, 0, 0, 0, 0, 0, 0, 0, new PlantFunc(100, 0, 2, 20, "")),

@@ -7,6 +7,7 @@
 
 import DataUtil, { TileType } from "./DataUtil";
 import DialogScript from "./DialogScript";
+import MapScript, { MapStatus } from "./MapScript";
 import MenuScript from "./MenuScript";
 import TileScript from "./TileScript";
 
@@ -85,6 +86,9 @@ export default class DetailPanelScript extends cc.Component {
             if(this.currentTile.workerNum > 0){
                 this.currentTile.workerNum--;
                 this.freshWorkerInfo(this.currentTile);
+                if(MapScript.mapStatus == MapStatus.check){
+                    MapScript.updateCheckStatus();
+                }
             }
         },this);
         this.addBtn.node.on("click",()=>{
@@ -95,6 +99,9 @@ export default class DetailPanelScript extends cc.Component {
             if(this.currentTile.workerNum < this.currentTile.workerLimits){
                 this.currentTile.workerNum++;
                 this.freshWorkerInfo(this.currentTile);
+                if(MapScript.mapStatus == MapStatus.check){
+                    MapScript.updateCheckStatus();
+                }
             }
         },this);
         DetailPanelScript.PNode = this.parentNode;

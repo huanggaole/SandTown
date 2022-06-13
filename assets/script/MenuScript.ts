@@ -72,6 +72,9 @@ export default class MenuScript extends cc.Component {
 
     @property(cc.Node)
     plantPanel:cc.Node = null;
+
+    @property(cc.Node)
+    checkPanel:cc.Node = null;
     // LIFE-CYCLE CALLBACKS:
 
     static popLbl;
@@ -155,10 +158,12 @@ export default class MenuScript extends cc.Component {
         this.buildButton.pressedSprite = this.pressedSF;
         this.researchButton.pressedSprite = this.pressedSF;
         this.checkButton.pressedSprite = this.pressedSF;
+        this.plantPanel.active = false;
+        this.checkPanel.active = false;
+        MapScript.clearPlantStatus();
+        MapScript.clearCheckStatus();
         if(this.operState == operType.Move){
-            this.plantPanel.active = false;
             MapScript.mapStatus = MapStatus.Move;
-            MapScript.updateMoveStatus();
             this.moveButton.normalSprite = this.pressedSF;
             this.moveButton.pressedSprite = this.normalSF;
             this.moveButton.hoverSprite = this.pressedSF;
@@ -184,6 +189,9 @@ export default class MenuScript extends cc.Component {
             this.researchButton.hoverSprite = this.pressedSF;
         }
         if(this.operState == operType.Check){
+            this.checkPanel.active = true;
+            MapScript.mapStatus = MapStatus.check;
+            MapScript.updateCheckStatus();
             this.checkButton.normalSprite = this.pressedSF;
             this.checkButton.pressedSprite = this.normalSF;
             this.checkButton.hoverSprite = this.pressedSF;
@@ -214,7 +222,7 @@ export default class MenuScript extends cc.Component {
 
     static updateMenu(){
         DataUtil.countParams();
-        MenuScript.popLbl.string = (DataUtil.laborNum - DataUtil.totalWorkerNum) + "/" + DataUtil.population;
+        MenuScript.popLbl.string = DataUtil.labourPoints + "/" + DataUtil.population;
         MenuScript.hapLbl.string = "" + DataUtil.happiness;
         MenuScript.culLbl.string = "" + DataUtil.culture;
         if(DataUtil.delCulture > 0){
