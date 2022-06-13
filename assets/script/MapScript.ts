@@ -5,6 +5,7 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
+import BuildScript from "./BuildScript";
 import CheckClass from "./CheckScript";
 import DataUtil, { DeviceType, TileType } from "./DataUtil";
 import DetailPanelScript from "./DetailPanelScript";
@@ -243,6 +244,16 @@ export default class MapScript extends cc.Component {
                         }
                     }
                     break;
+                case MapStatus.Build:
+                    if(delDist < 4){
+                        const loc = MapScript.getTouchLoc(releasePoint.x, releasePoint.y);
+                        if(loc.x > -1 && loc.y > -1){
+                            // console.log(loc);
+                            const tile = DataUtil.tileArray[loc.y][loc.x];
+                            BuildScript.dealBuilding(tile);
+                        }
+                    }
+                    break;
             }
         },this);
     }
@@ -300,8 +311,7 @@ export default class MapScript extends cc.Component {
     }
 
     static clearPlantStatus(){
-        
-        console.log("clear");
+        // console.log("clear");
         for(let j = 0; j <  DataUtil.tileArray.length; j++){
             for(let i = 0; i < DataUtil.tileArray[0].length; i++){
                 DataUtil.tileArray[j][i].tileNode.opacity = 255;
@@ -310,7 +320,6 @@ export default class MapScript extends cc.Component {
                 }
             }
         }
-        
     }
 
     static updatePlantStatus(){
@@ -339,6 +348,7 @@ export default class MapScript extends cc.Component {
             }
         }
     }
+
     static updateCheckStatus(){
         for(let j = 0; j < DataUtil.tileArray.length; j++){
             for(let i = 0; i < DataUtil.tileArray[0].length; i++){
@@ -400,6 +410,10 @@ export default class MapScript extends cc.Component {
                 }
             }
         }
+    }
+
+    static updateBuildStatus(){
+
     }
     // update (dt) {}
 }

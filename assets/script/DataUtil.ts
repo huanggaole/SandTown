@@ -106,7 +106,7 @@ export default class DataUtil {
     static debtLeft = -1;
 
     static nextLevel(){
-        if(this.laborNum < 0){
+        if(this.labourPoints < 0){
             DialogScript.ShowDialog("小镇当前的可用劳动人力点数为赤字，本回合无法推进。请调节工作地点的人力分配，解决可用劳动人力点数的赤字问题后方可继续下一回合。");
             return;
         }
@@ -119,7 +119,6 @@ export default class DataUtil {
         this.money += this.delMoney;
         this.money += (this.food - this.population);
         this.levelNum++;
-        this.laborNum = this.population;
         
         // 提升土壤含水量
         PlantScript.improveSWC();
@@ -127,6 +126,21 @@ export default class DataUtil {
         this.erosionLand();
         // 树木的死亡
         PlantScript.killPlant();
+
+        // 计算新回合的人口
+        this.population = 0;
+        for(let j = 0; j < this.tileArray.length; j++){
+            for(let i = 0; i < this.tileArray[0].length; i++){
+                const deviceType = this.tileArray[j][i].deviceType;
+                if(deviceType > -1){
+                    this.population += this.deviceAttr[deviceType].populationEffect;
+                }
+            }
+        }
+        this.laborNum = this.population;
+        if(this.laborNum == 0){
+            DialogScript.ShowDialog("很遗憾，你的城镇已经无人居住，沦为了一座鬼城。在" + this.levelNum + "回合的坚持后，你的本轮游戏失败了。");
+        }
 
         if(this.money < 0 && this.debtLeft > 0){
             this.debtLeft--;
@@ -201,7 +215,11 @@ export default class DataUtil {
                 }
             }
         }
-        this.happiness = Math.floor(this.happiness / this.population);
+        if(this.population > 0){
+            this.happiness = Math.floor(this.happiness / this.population);
+        }else{
+            this.happiness = 0;
+        }
     }
 
     static erosionLand(){
@@ -253,6 +271,8 @@ export default class DataUtil {
         var upToGrass = 0;
         var downToDirt = 0;
         var downToSand = 0;
+        var waterToDirt = 0;
+        var stoneToSand = 0;
         for(let j = 0; j < this.tileArray.length; j++){
             for(let i = 0; i < this.tileArray[0].length; i++){
                 const tile = this.tileArray[j][i];
@@ -268,76 +288,62 @@ export default class DataUtil {
                 } else if(tile.tileType == TileType.Dirt_H && newSWC[j][i] >= 15){
                     upToGrass ++;
                     tile.tileType = TileType.Grass_H;
-                } else if((tile.tileType == TileType.Grass || tile.tileType == TileType.Water) && newSWC[j][i] < 15){
+                } else if(tile.tileType == TileType.Grass && newSWC[j][i] < 15){
                     downToDirt ++;
                     tile.tileType = TileType.Dirt;
-                } else if(tile.tileType == TileType.Grass_H && newSWC[j][i] < 15){
+                } else if(tile.tileType == TileType.Water && newSWC[j][i] < 15){
+                    waterToDirt ++;
+                    tile.tileType = TileType.Dirt;
+                }else if(tile.tileType == TileType.Grass_H && newSWC[j][i] < 15){
                     downToDirt ++;
                     tile.tileType = TileType.Dirt_H;
-                } else if((tile.tileType == TileType.Dirt || tile.tileType == TileType.Stone) && newSWC[j][i] < 10){
+                } else if(tile.tileType == TileType.Dirt && newSWC[j][i] < 10){
                     downToSand ++;
                     tile.tileType = TileType.Sand;
                 } else if(tile.tileType == TileType.Dirt_H && newSWC[j][i] < 10){
                     downToSand ++;
                     tile.tileType = TileType.Sand_H;
+                } else if(tile.tileType == TileType.Stone && newSWC[j][i] < 10){
+                    stoneToSand ++;
+                    if(tile.deviceType == DeviceType.VillageCommittee){
+                        DialogScript.ShowDialog("很遗憾，你的" + DataUtil.deviceAttr[DeviceType.VillageCommittee].name + "受土地沙漠化的影响被损毁了。在经过" + this.levelNum + "回合的坚持后，你的本轮游戏失败了。");
+                    }
+                    tile.tileType = TileType.Sand;
+                    tile.deviceType = -1;
+                    tile.deviceNode.getComponent(cc.Sprite).spriteFrame = tile.deviceSF = null;
                 }
-                /*
-                if(tile.SWC < 10 && newSWC[j][i] >= 10){
-                    upToDirt ++;
-                    if(tile.tileType <=4){
-                        tile.tileType = TileType.Dirt;
-                    }else{
-                        tile.tileType = TileType.Dirt_H;
-                    }
-                }else if(tile.SWC < 15 && newSWC[j][i] >=15 && tile.tileType != TileType.Stone){
-                    upToGrass ++;
-                    if(tile.tileType <=4){
-                        tile.tileType = TileType.Grass;
-                    }else{
-                        tile.tileType = TileType.Grass_H;
-                    }
-                }else if(tile.SWC >=15 && newSWC[j][i] < 15 && tile.tileType != TileType.Stone){
-                    downToDirt ++;
-                    if(tile.tileType <=4){
-                        tile.tileType = TileType.Dirt;
-                    }else{
-                        tile.tileType = TileType.Dirt_H;
-                    }
-                }else if(tile.SWC >=10 && newSWC[j][i] < 10){
-                    downToSand ++;
-                    if(tile.tileType <=4){
-                        tile.tileType = TileType.Sand;
-                    }else{
-                        tile.tileType = TileType.Sand_H;
-                    }
-                }
-                */
+
                 tile.SWC = newSWC[j][i];
                 // console.log();
                 tile.tileNode.getComponent(cc.Sprite).spriteFrame = tile.tileSF = (MapScript.tileSprites[tile.tileType] as cc.Prefab).data.getComponent(cc.Sprite).spriteFrame;
                 // tile.tileNode.getComponent(cc.sprite)
             }
         }
-        console.log(upToDirt , upToGrass , downToDirt , downToSand);
-        if(upToDirt > 0 || upToGrass > 0 || downToDirt > 0 || downToSand > 0){
+        if(upToDirt > 0 || upToGrass > 0 || downToDirt > 0 || downToSand > 0 || waterToDirt > 0 || stoneToSand > 0){
             let res = "";
             if(upToDirt > 0 || upToGrass > 0){
                 res += "在人工治理的努力下";
                 if(upToDirt > 0){
-                    res += "，有" + upToDirt + "个地图块改善为泥土块";
+                    res += "，有" + upToDirt + "个沙地块改善为泥土块";
                 }
                 if(upToGrass > 0){
-                    res += "，有" + upToGrass + "个地图块改善为草地块";
+                    res += "，有" + upToGrass + "个泥土块改善为草地块";
                 }
                 res += "。\n";
             }
-            if(downToSand > 0 || downToDirt > 0){
+            if(downToSand > 0 || downToDirt > 0 || waterToDirt > 0 || stoneToSand > 0){
                 res += "受恶劣环境的影响";
                 if(downToSand > 0){
-                    res += "，有" + downToSand + "个地图块退化为沙地块";
+                    res += "，有" + downToSand + "个泥土块退化为沙地块";
                 }
                 if(downToDirt > 0){
-                    res += "，有" + downToDirt + "个地图块退化为泥地块";
+                    res += "，有" + downToDirt + "个草地块退化为泥地块";
+                }
+                if(waterToDirt > 0){
+                    res += "，有" + waterToDirt + "个水体块退化为泥地块";
+                }
+                if(stoneToSand > 0){
+                    res += "，有" + stoneToSand + "处建设用地退化为沙地块，其上的建筑均被损坏";
                 }
                 res += "。";
             }

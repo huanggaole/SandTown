@@ -29,7 +29,7 @@ export default class DialogScript extends cc.Component {
         DialogScript.InfoLbl = this.infoLabel;
         this.OKBtn.node.on("click",()=>{
             if(DialogScript.InfoLbl.string.includes("你的本轮游戏失败了")){
-                cc.director.loadScene("MainScene");
+                location.reload();
             }
             DialogScript.infoList.shift();
             if(DialogScript.infoList.length == 0){

@@ -98,8 +98,9 @@ export default class PlantScript extends cc.Component {
                 const tile = DataUtil.tileArray[j][i];
                 if(tile.SWC < 10 && tile.deviceType >= 0 && DataUtil.deviceAttr[tile.deviceType].plantFunc != null){
                     const dieprop = DataUtil.deviceAttr[tile.deviceType].plantFunc.liveRate + DataUtil.deviceAttr[tile.deviceType].plantFunc.liveRatePerWorker * DataUtil.tileArray[j][i].workerNum;
+                    console.log(dieprop);
                     const rnd = Math.random() * 100;
-                    if(rnd < dieprop){
+                    if(dieprop < rnd){
                         tile.deviceType = -1;
                         tile.deviceSF = null;
                         tile.deviceNode.getComponent(cc.Sprite).spriteFrame = null;
