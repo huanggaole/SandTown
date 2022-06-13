@@ -354,6 +354,49 @@ export default class MapScript extends cc.Component {
                             tile.deviceNode.addChild(node);
                         }
                     }
+                }else if(CheckClass.checkIndex == 1){
+                    if(tile.deviceType > 0){
+                        const device = DataUtil.deviceAttr[tile.deviceType];
+                        if(tile.workerLimits > 0){
+                            const node = cc.instantiate(this.iconPrefabs[1]);
+                            node.getChildByName("worker").getChildByName("lbl").getComponent(cc.Label).string = tile.workerNum + "/" + tile.workerLimits;
+                            tile.deviceNode.addChild(node);
+                        }
+                    }
+                }else if(CheckClass.checkIndex == 2){
+                    if(tile.deviceType > 0){
+                        const device = DataUtil.deviceAttr[tile.deviceType];
+                        if(device.cultureEffect){
+                            const node = cc.instantiate(this.iconPrefabs[2]);
+                            node.getChildByName("culture").getChildByName("lbl").getComponent(cc.Label).string = device.cultureEffect * tile.workerNum;
+                            tile.deviceNode.addChild(node);
+                        }
+                    }
+                }else if(CheckClass.checkIndex == 3){
+                    if(tile.deviceType > 0){
+                        const device = DataUtil.deviceAttr[tile.deviceType];
+                        if(device.moneyEffect){
+                            const node = cc.instantiate(this.iconPrefabs[3]);
+                            node.getChildByName("money").getChildByName("lbl").getComponent(cc.Label).string = device.moneyEffect * tile.workerNum;
+                            if(device.moneyEffect < 0){
+                                node.getChildByName("money").getChildByName("lbl").getComponent(cc.Label).node.color = new cc.Color(255, 0, 0); 
+                            }
+                            tile.deviceNode.addChild(node);
+                        }
+                    }
+                }else if(CheckClass.checkIndex == 4){
+                    if(tile.deviceType > 0){
+                        const device = DataUtil.deviceAttr[tile.deviceType];
+                        if(device.foodEffect > 0){
+                            const node = cc.instantiate(this.iconPrefabs[4]);
+                            node.getChildByName("food").getChildByName("lbl").getComponent(cc.Label).string = device.foodEffect * tile.workerNum;
+                            tile.deviceNode.addChild(node);
+                        }
+                    }
+                }else if(CheckClass.checkIndex == 5){
+                    const node = cc.instantiate(this.iconPrefabs[5]);
+                    node.getChildByName("SWC").getChildByName("lbl").getComponent(cc.Label).string = Math.floor(tile.SWC * 10) / 10.0 + "%";
+                    tile.deviceNode.addChild(node);
                 }
             }
         }

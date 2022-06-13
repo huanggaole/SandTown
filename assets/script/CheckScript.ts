@@ -5,6 +5,8 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
+import MapScript from "./MapScript";
+
 const {ccclass, property} = cc._decorator;
 
 @ccclass
@@ -54,6 +56,7 @@ export default class CheckClass extends cc.Component {
                 buttons[index].pressedSprite = this.normalSF;
                 buttons[index].hoverSprite = this.pressedSF;
                 CheckClass.checkIndex = index;
+                MapScript.updateCheckStatus();
             }, this);
         }
 
