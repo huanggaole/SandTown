@@ -42,7 +42,9 @@ export default class BuildScript extends cc.Component {
 
     static dealBuilding(tile:TileScript){
         if(this.selectedIndex == 0){
-            if(tile.deviceType <= 0 || tile.deviceType == DeviceType.Rock){
+            if(tile.deviceType == DeviceType.Rock || tile.tileType > 4){
+                DialogScript.ShowDialog("在研究“岩土工程”之后，方可用此功能铲平岩石或土坡。");
+            }else if(tile.deviceType <= 0){
                 DialogScript.ShowDialog("此处没有建筑，请选择一处有建筑物的图块才能进行清除建筑操作。");
             }else if(tile.deviceType == DeviceType.VillageCommittee){
                 DialogScript.ShowDialog("此建筑为小镇的政府建筑，不能被清除。");
@@ -57,42 +59,70 @@ export default class BuildScript extends cc.Component {
             }else{
                 DialogScript.ShowDialog("“清除建筑”按钮不能用于清除植物，清除植物请使用“种植”功能下的“清除植物”按钮。");
             }
-        } 
-        /*
-        else if (this.selectedIndex > 0){
-            if(tile.deviceType == DeviceType.Rock){
-                DialogScript.ShowDialog("不能将植物种在岩石上。");
-            } else if(tile.tileType == TileType.Stone){
-                DialogScript.ShowDialog("不能将植物种在建筑用地上。");
-            } else if(tile.tileType == TileType.Water){
-                DialogScript.ShowDialog("不能将植物种在水体上。");
-            } else if(tile.deviceType > -1){
-                DialogScript.ShowDialog("不能将植物种在其他植物上。");
-            } else if((this.selectedIndex == 6 || this.selectedIndex == 7) && tile.SWC < 15){
-                DialogScript.ShowDialog("目前，农田必须种在绿地（土壤含水量≥15%）上。研究“旱地培育”技术后，可以将农田种在泥地（土壤含水量≥10%）上。");
-            } else if((this.selectedIndex == 5) && tile.SWC < 10){
-                DialogScript.ShowDialog("侧柏必须种在泥地或草地（土壤含水量≥10%）上。");
-            } else {
-                tile.deviceType = this.selectedIndex;
-                tile.workerLimits = DataUtil.deviceAttr[tile.deviceType].workerLimits;
-                tile.workerNum = 0;
-                tile.deviceSF = MapScript.deviceSFs[tile.deviceType];
-                tile.deviceNode.getComponent(cc.Sprite).spriteFrame = tile.deviceSF;
-                DataUtil.money -= this.moneyCost[this.selectedIndex];
+        } else if (this.selectedIndex == 1){
+            if(tile.deviceType == DeviceType.Rock || tile.tileType > 4){
+                DialogScript.ShowDialog("在将土地改建为建设用地前，请先清除此地块上的岩石或土坡清除。需要研究“岩土工程”。");
+            }else if(tile.deviceType > 0){
+                DialogScript.ShowDialog("在将土地改建为建设用地前，请先清除此地块上的植物。");
+            }else if(tile.tileType == TileType.Water){
+                DialogScript.ShowDialog("在将土地改建为建设用地前，请先将水体改建成草地或泥地。");
+            }else if(tile.tileType == TileType.Stone){
+                DialogScript.ShowDialog("当前土地块已经是建设用地了。");
+            }else if(tile.tileType == TileType.Sand){
+                DialogScript.ShowDialog("沙土松散，无法进行建设。请先提高土壤含水量。");
+            }else if(tile.tileType == TileType.Dirt || tile.tileType == TileType.Grass){
+                tile.tileType = TileType.Stone;
+                tile.tileNode.getComponent(cc.Sprite).spriteFrame = tile.tileSF = cc.instantiate(MapScript.tileSprites[tile.tileType]).getComponent(cc.Sprite).spriteFrame;
+                DataUtil.money -= this.moneyCost[1];
+            }
+        } else if (this.selectedIndex == 2){
+            if(tile.deviceType == DeviceType.Rock || tile.tileType > 4){
+                DialogScript.ShowDialog("在将土地改建为水体前，请先清除此地块上的岩石或土坡清除。需要研究“岩土工程”。");
+            }else if(tile.deviceType > 0){
+                DialogScript.ShowDialog("在将土地改建为水体前，请先清除此地块上的植物或建筑。");
+            }else if(tile.tileType == TileType.Water){
+                DialogScript.ShowDialog("当前土地块已经是水体了。");
+            }else if(tile.tileType == TileType.Stone){
+                DialogScript.ShowDialog("在将建设用地改建为水体前，请先“退建还草”，将建设用地改建为草地或泥地。");
+            }else if(tile.tileType == TileType.Sand || tile.tileType == TileType.Dirt){
+                DialogScript.ShowDialog("只有土壤含水量较高的绿地才能挖掘出水体。");
+            }else if(tile.tileType == TileType.Grass){
+                tile.tileType = TileType.Water;
+                tile.tileNode.getComponent(cc.Sprite).spriteFrame = tile.tileSF = cc.instantiate(MapScript.tileSprites[tile.tileType]).getComponent(cc.Sprite).spriteFrame;
+                DataUtil.money -= this.moneyCost[2];
+            }
+        } else if (this.selectedIndex == 3){
+            if(tile.tileType != TileType.Water && tile.tileType != TileType.Stone){
+                DialogScript.ShowDialog("只能对建设用地或水体进行复土还绿操作。");
+            } else if(tile.deviceType > 0){
+                DialogScript.ShowDialog("在将建设用地复土还绿前，请先清除此地块上的建筑。");
+            }else{
+                if(tile.SWC >= 15){
+                    tile.tileType = TileType.Grass;
+                }else{
+                    tile.tileType = TileType.Dirt;
+                }
+                tile.tileNode.getComponent(cc.Sprite).spriteFrame = tile.tileSF = cc.instantiate(MapScript.tileSprites[tile.tileType]).getComponent(cc.Sprite).spriteFrame;
+                DataUtil.money -= this.moneyCost[3];
             }
         }
-        */
+
         DataUtil.countParams();
         MenuScropt.updateMenu();
     }
 
     static moneyCost = [
         2,
-        2
+        5,
+        5,
+        2,
+
     ];
 
     static introTxt=[
         "清除建筑：可以将一个建筑用地上的建筑清除。需要花费" + BuildScript.moneyCost[0] + "点金币。不能清除石头或植物。",
-        ""
+        "建设用地：可以将泥地或草地改建为建设用地。需要花费" + BuildScript.moneyCost[1] + "点金币。所有的建筑必须建在建设用地上。",
+        "建设水体：可以草地改建为水体。需要花费" + BuildScript.moneyCost[2] + "点金币。水体有助于灌溉周围的植物，并为野生动物提供饮水。",
+        "复土还绿：可以将建设用地或水体根据土壤含水率重新恢复为泥土或绿地，需要花费" + BuildScript.moneyCost[3] + "点金币。",
     ];
 }
