@@ -38,6 +38,8 @@ export enum DeviceType{
     House2,
     House3,
     House4,
+    House5,
+    House6,
     Shop1
 }
 
@@ -364,10 +366,12 @@ export default class DataUtil {
         new DeviceFunc("仙人掌", 0, 0, 0, 0, 0, 0, 0, 0),
         new DeviceFunc("岩石", 0, 0, 0, 0, 0, 0, 0, 0),
         new DeviceFunc("村委会", 2, 2, 0, 5, 2, 3, -2, 0),
-        new DeviceFunc("民居", 0, 0, 5, 10, 0, 0, 0, 0),
-        new DeviceFunc("民居2", 0, 0, 0, 0, 0, 0, 0, 0),
-        new DeviceFunc("民居3", 0, 0, 0, 0, 0, 0, 0, 0),
-        new DeviceFunc("民居4", 0, 0, 0, 0, 0, 0, 0, 0),
+        new DeviceFunc("棚屋", 0, 0, 5, 10, 0, 0, 0, 0),
+        new DeviceFunc("平房小院", 0, 0, 7, 20, 0, 0, 0, 0),
+        new DeviceFunc("洋房别墅", 0, 0, 10, 40, 0, 0, 0, 0),
+        new DeviceFunc("公寓楼", 0, 0, 12, 20, 0, 0, 0, 0),
+        new DeviceFunc("高层住宅", 0, 0, 20, 30, 0, 0, 0, 0),
+        new DeviceFunc("垂直森林", 0, 0, 15, 40, 0, 0, 0, 0),
         new DeviceFunc("商店街", 2, 2, 0, 5, 2, 0, 2, 0)
     ];
 }

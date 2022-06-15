@@ -1,0 +1,36 @@
+{
+  "ver": "2.3.5",
+  "uuid": "5e1bc8d7-7935-4772-9c72-c2e46655ed3e",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "premultiplyAlpha": false,
+  "genMipmaps": false,
+  "packable": true,
+  "width": 118,
+  "height": 98,
+  "platformSettings": {},
+  "subMetas": {
+    "平房小院": {
+      "ver": "1.0.4",
+      "uuid": "a63d1ee4-852f-499f-90d4-226d7534655c",
+      "rawTextureUuid": "5e1bc8d7-7935-4772-9c72-c2e46655ed3e",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": 0,
+      "trimX": 0,
+      "trimY": 0,
+      "width": 118,
+      "height": 98,
+      "rawWidth": 118,
+      "rawHeight": 98,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

@@ -21,7 +21,7 @@ export default class BuildScript extends cc.Component {
     infoLbl:cc.Label = null;
 
     static selectedIndex = 0;
-
+    static firstBuildingIndex = 12;
     start(): void {
         for(let i = 0; i < this.buildBtns.length; i++){
             this.buildBtns[i].node.on("click",()=>{
@@ -32,7 +32,7 @@ export default class BuildScript extends cc.Component {
                     this.buildBtns[j].hoverSprite = this.normalSF;
                 }
                 this.buildBtns[index].normalSprite = this.pressedSF;
-                this.buildBtns[index].pressedSprite = this.normalSF;
+                this.buildBtns[index].pressedSprite = this.pressedSF;
                 this.buildBtns[index].hoverSprite = this.pressedSF;
                 BuildScript.selectedIndex = index;
                 this.infoLbl.string = BuildScript.introTxt[index];
@@ -64,10 +64,10 @@ export default class BuildScript extends cc.Component {
                 DialogScript.ShowDialog("在将土地改建为建设用地前，请先清除此地块上的岩石或土坡清除。需要研究“岩土工程”。");
             }else if(tile.deviceType > 0){
                 DialogScript.ShowDialog("在将土地改建为建设用地前，请先清除此地块上的植物。");
-            }else if(tile.tileType == TileType.Water){
-                DialogScript.ShowDialog("在将土地改建为建设用地前，请先将水体改建成草地或泥地。");
             }else if(tile.tileType == TileType.Stone){
                 DialogScript.ShowDialog("当前土地块已经是建设用地了。");
+            }else if(tile.tileType == TileType.Water){
+                DialogScript.ShowDialog("在将土地改建为建设用地前，请先将水体改建成草地或泥地。");
             }else if(tile.tileType == TileType.Sand){
                 DialogScript.ShowDialog("沙土松散，无法进行建设。请先提高土壤含水量。");
             }else if(tile.tileType == TileType.Dirt || tile.tileType == TileType.Grass){
@@ -78,10 +78,10 @@ export default class BuildScript extends cc.Component {
         } else if (this.selectedIndex == 2){
             if(tile.deviceType == DeviceType.Rock || tile.tileType > 4){
                 DialogScript.ShowDialog("在将土地改建为水体前，请先清除此地块上的岩石或土坡清除。需要研究“岩土工程”。");
-            }else if(tile.deviceType > 0){
-                DialogScript.ShowDialog("在将土地改建为水体前，请先清除此地块上的植物或建筑。");
             }else if(tile.tileType == TileType.Water){
                 DialogScript.ShowDialog("当前土地块已经是水体了。");
+            }else if(tile.deviceType > 0){
+                DialogScript.ShowDialog("在将土地改建为水体前，请先清除此地块上的植物或建筑。");
             }else if(tile.tileType == TileType.Stone){
                 DialogScript.ShowDialog("在将建设用地改建为水体前，请先“退建还草”，将建设用地改建为草地或泥地。");
             }else if(tile.tileType == TileType.Sand || tile.tileType == TileType.Dirt){
@@ -105,9 +105,22 @@ export default class BuildScript extends cc.Component {
                 tile.tileNode.getComponent(cc.Sprite).spriteFrame = tile.tileSF = cc.instantiate(MapScript.tileSprites[tile.tileType]).getComponent(cc.Sprite).spriteFrame;
                 DataUtil.money -= this.moneyCost[3];
             }
+        } else {
+            if(tile.tileType != TileType.Stone){
+                DialogScript.ShowDialog("建筑必须建造在建设用地上，请先将此地块改造为建设用地。");
+            } else if (tile.deviceType > 0){
+                DialogScript.ShowDialog("此建筑用地上已有其他建筑，请先清除原有建筑才能建造新建筑。");
+            } else {
+                tile.deviceType = this.selectedIndex + this.firstBuildingIndex - 4;
+                tile.workerLimits = DataUtil.deviceAttr[tile.deviceType].workerLimits;
+                tile.workerNum = DataUtil.deviceAttr[tile.deviceType].workerNum; 
+                tile.deviceNode.getComponent(cc.Sprite).spriteFrame = tile.deviceSF = MapScript.deviceSFs[tile.deviceType];
+                DataUtil.money -= this.moneyCost[this.selectedIndex];
+                DataUtil.laborNum += DataUtil.deviceAttr[tile.deviceType].populationEffect;
+            }
         }
 
-        DataUtil.countParams();
+        // DataUtil.countParams();
         MenuScropt.updateMenu();
     }
 
@@ -116,7 +129,12 @@ export default class BuildScript extends cc.Component {
         5,
         5,
         2,
-
+        10,
+        90,
+        300,
+        500,
+        1000,
+        1500,
     ];
 
     static introTxt=[
@@ -124,5 +142,11 @@ export default class BuildScript extends cc.Component {
         "建设用地：可以将泥地或草地改建为建设用地。需要花费" + BuildScript.moneyCost[1] + "点金币。所有的建筑必须建在建设用地上。",
         "建设水体：可以草地改建为水体。需要花费" + BuildScript.moneyCost[2] + "点金币。水体有助于灌溉周围的植物，并为野生动物提供饮水。",
         "复土还绿：可以将建设用地或水体根据土壤含水率重新恢复为泥土或绿地，需要花费" + BuildScript.moneyCost[3] + "点金币。",
+        "棚屋：本地的传统住宅，能容纳5个居民，为住户提供10点幸福度。需要花费" + BuildScript.moneyCost[4] + "点金币。",
+        "平房小院：农村常见的住宅，能容纳7个居民，为住户提供20点幸福度。需要花费" + BuildScript.moneyCost[5] + "点金币。",
+        "洋房别墅：新农村建设时期流行的住宅，能容纳10个居民，为住户提供40点幸福度。需要花费" + BuildScript.moneyCost[6] + "点金币。",
+        "公寓楼：城市化初期很受欢迎的住宅，能容纳12个居民，为住户提供20点幸福度。需要花费" + BuildScript.moneyCost[7] + "点金币。",
+        "高层住宅：深度城市化后流行的住宅，能容纳20个居民，为住户提供30点幸福度。需要花费" + BuildScript.moneyCost[8] + "点金币。",
+        "垂直森林：面向未来的生态主义住宅，能容纳15个居民，为住户提供40点幸福度。需要花费" + BuildScript.moneyCost[9] + "点金币。",
     ];
 }

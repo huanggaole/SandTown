@@ -31,7 +31,7 @@ export default class PlantScript extends cc.Component {
                     this.plantBtns[j].hoverSprite = this.normalSF;
                 }
                 this.plantBtns[index].normalSprite = this.pressedSF;
-                this.plantBtns[index].pressedSprite = this.normalSF;
+                this.plantBtns[index].pressedSprite = this.pressedSF;
                 this.plantBtns[index].hoverSprite = this.pressedSF;
                 PlantScript.selectedIndex = index;
                 this.infoLbl.string = PlantScript.introTxt[index];
