@@ -10,6 +10,7 @@ import CheckClass from "./CheckScript";
 import DataUtil, { DeviceType, TileType } from "./DataUtil";
 import DetailPanelScript from "./DetailPanelScript";
 import PlantScript from "./PlantScript";
+import ResearchScript from "./ResearchScript";
 import TileScript from "./TileScript";
 
 const {ccclass, property} = cc._decorator;
@@ -18,7 +19,8 @@ export enum MapStatus{
     Move,
     Plant,
     Build,
-    check
+    Culture,
+    Check
 }
 
 @ccclass
@@ -29,7 +31,7 @@ export default class MapScript extends cc.Component {
     tileWidth = 120;
     tileHeight = 140;
 
-    prop_H = 1/12;
+    prop_H = 0; // 1/12;
     prop_Cactus = 1/12;
     prop_Rock = 1/24;
 
@@ -221,7 +223,7 @@ export default class MapScript extends cc.Component {
             cc.game.canvas.style.cursor = "default";
             switch(MapScript.mapStatus){
                 case MapStatus.Move: 
-                case MapStatus.check:
+                case MapStatus.Check:
                     if(delDist < 4){
                         const loc = MapScript.getTouchLoc(releasePoint.x, releasePoint.y);
                         if(loc.x > -1 && loc.y > -1){
@@ -349,6 +351,10 @@ export default class MapScript extends cc.Component {
         }
     }
 
+    static updateCultureStatus(){
+        ResearchScript.refreshBtns();
+    }
+
     static updateCheckStatus(){
         for(let j = 0; j < DataUtil.tileArray.length; j++){
             for(let i = 0; i < DataUtil.tileArray[0].length; i++){
@@ -413,7 +419,66 @@ export default class MapScript extends cc.Component {
     }
 
     static updateBuildStatus(){
-
+        if(ResearchScript.cultureStatus[0] == 1){
+            BuildScript.BuildBtns[5].getComponent(cc.Button).node.active = true;
+        }
+        if(ResearchScript.cultureStatus[2] == 1){
+            BuildScript.BuildBtns[23].getComponent(cc.Button).node.active = true;
+        }
+        if(ResearchScript.cultureStatus[3] == 1){
+            BuildScript.BuildBtns[16].getComponent(cc.Button).node.active = true;
+        }
+        if(ResearchScript.cultureStatus[4] == 1){
+            BuildScript.BuildBtns[11].getComponent(cc.Button).node.active = true;
+        }
+        if(ResearchScript.cultureStatus[5] == 1){
+            BuildScript.BuildBtns[6].getComponent(cc.Button).node.active = true;
+        }
+        if(ResearchScript.cultureStatus[7] == 1){
+            BuildScript.BuildBtns[24].getComponent(cc.Button).node.active = true;
+        }
+        if(ResearchScript.cultureStatus[8] == 1){
+            BuildScript.BuildBtns[17].getComponent(cc.Button).node.active = true;
+        }
+        if(ResearchScript.cultureStatus[9] == 1){
+            BuildScript.BuildBtns[12].getComponent(cc.Button).node.active = true;
+        }
+        if(ResearchScript.cultureStatus[10] == 1){
+            BuildScript.BuildBtns[7].getComponent(cc.Button).node.active = true;
+        }
+        if(ResearchScript.cultureStatus[12] == 1){
+            BuildScript.BuildBtns[25].getComponent(cc.Button).node.active = true;
+        }
+        if(ResearchScript.cultureStatus[13] == 1){
+            BuildScript.BuildBtns[18].getComponent(cc.Button).node.active = true;
+        }
+        if(ResearchScript.cultureStatus[14] == 1){
+            BuildScript.BuildBtns[13].getComponent(cc.Button).node.active = true;
+        }
+        if(ResearchScript.cultureStatus[15] == 1){
+            BuildScript.BuildBtns[8].getComponent(cc.Button).node.active = true;
+        }
+        if(ResearchScript.cultureStatus[17] == 1){
+            BuildScript.BuildBtns[26].getComponent(cc.Button).node.active = true;
+        }
+        if(ResearchScript.cultureStatus[18] == 1){
+            BuildScript.BuildBtns[19].getComponent(cc.Button).node.active = true;
+        }
+        if(ResearchScript.cultureStatus[19] == 1){
+            BuildScript.BuildBtns[14].getComponent(cc.Button).node.active = true;
+        }
+        if(ResearchScript.cultureStatus[20] == 1){
+            BuildScript.BuildBtns[9].getComponent(cc.Button).node.active = true;
+        }
+        if(ResearchScript.cultureStatus[22] == 1){
+            BuildScript.BuildBtns[27].getComponent(cc.Button).node.active = true;
+        }
+        if(ResearchScript.cultureStatus[23] == 1){
+            BuildScript.BuildBtns[20].getComponent(cc.Button).node.active = true;
+        }
+        if(ResearchScript.cultureStatus[24] == 1){
+            BuildScript.BuildBtns[15].getComponent(cc.Button).node.active = true;
+        }
     }
     // update (dt) {}
 }

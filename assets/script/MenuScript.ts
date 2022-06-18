@@ -77,6 +77,9 @@ export default class MenuScript extends cc.Component {
     buildPanel:cc.Node = null;
 
     @property(cc.Node)
+    culturePanel:cc.Node = null;
+
+    @property(cc.Node)
     checkPanel:cc.Node = null;
     // LIFE-CYCLE CALLBACKS:
 
@@ -163,6 +166,7 @@ export default class MenuScript extends cc.Component {
         this.checkButton.pressedSprite = this.pressedSF;
         this.plantPanel.active = false;
         this.buildPanel.active = false;
+        this.culturePanel.active = false;
         this.checkPanel.active = false;
         
         MapScript.clearPlantStatus();
@@ -192,13 +196,16 @@ export default class MenuScript extends cc.Component {
             this.buildButton.hoverSprite = this.pressedSF;
         }
         if(this.operState == operType.Research){
+            this.culturePanel.active = true;
+            MapScript.mapStatus = MapStatus.Culture;
+            MapScript.updateCultureStatus();
             this.researchButton.normalSprite = this.pressedSF;
             this.researchButton.pressedSprite = this.normalSF;
             this.researchButton.hoverSprite = this.pressedSF;
         }
         if(this.operState == operType.Check){
             this.checkPanel.active = true;
-            MapScript.mapStatus = MapStatus.check;
+            MapScript.mapStatus = MapStatus.Check;
             MapScript.updateCheckStatus();
             this.checkButton.normalSprite = this.pressedSF;
             this.checkButton.pressedSprite = this.normalSF;

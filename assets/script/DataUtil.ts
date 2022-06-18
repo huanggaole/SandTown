@@ -40,7 +40,24 @@ export enum DeviceType{
     House4,
     House5,
     House6,
-    Shop1
+    Shop1,
+    Shop2,
+    Shop3,
+    Shop4,
+    Shop5,
+    Shop6,
+    Culture1,
+    Culture2,
+    Culture3,
+    Culture4,
+    Culture5,
+    Industry1,
+    Industry2,
+    Industry3,
+    Industry4,
+    Industry5,
+    Industry6,
+    Industry7
 }
 
 export class PlantFunc{
@@ -174,6 +191,7 @@ export default class DataUtil {
                 const deviceType = this.tileArray[j][i].deviceType;
                 if(deviceType > -1){
                     const device = this.deviceAttr[deviceType];
+                    this.tileArray[j][i].workerLimits = device.workerLimits;
                     this.population += device.populationEffect;
                     this.totalWorkerNum += this.tileArray[j][i].workerNum;
                     this.delCulture += device.cultureEffect * this.tileArray[j][i].workerNum;
@@ -183,6 +201,52 @@ export default class DataUtil {
                     this.happiness = 0;
                     if(device.happinessEffectRange > 0){
                         happinessPlace.push({r:this.tileArray[j][i].r,s:this.tileArray[j][i].s,q:this.tileArray[j][i].q,range:device.happinessEffectRange,value:(device.happinessEffect * this.tileArray[j][i].workerNum),name:device.name});
+                    }
+                    // 判断是否是伐木场
+                    if(deviceType == DeviceType.Industry1){
+                        let treenum = 0;
+                        if(this.tileArray[j][i].leftUpTile.deviceType == DeviceType.CeBo || this.tileArray[j][i].leftUpTile.deviceType == DeviceType.YunShan){
+                            treenum++;
+                        }
+                        if(this.tileArray[j][i].leftTile.deviceType == DeviceType.CeBo || this.tileArray[j][i].leftTile.deviceType == DeviceType.YunShan){
+                            treenum++;
+                        }
+                        if(this.tileArray[j][i].leftDownTile.deviceType == DeviceType.CeBo || this.tileArray[j][i].leftDownTile.deviceType == DeviceType.YunShan){
+                            treenum++;
+                        }
+                        if(this.tileArray[j][i].rightUpTile.deviceType == DeviceType.CeBo || this.tileArray[j][i].rightUpTile.deviceType == DeviceType.YunShan){
+                            treenum++;
+                        }
+                        if(this.tileArray[j][i].rightTile.deviceType == DeviceType.CeBo || this.tileArray[j][i].rightTile.deviceType == DeviceType.YunShan){
+                            treenum++;
+                        }
+                        if(this.tileArray[j][i].rightDownTile.deviceType == DeviceType.CeBo || this.tileArray[j][i].rightDownTile.deviceType == DeviceType.YunShan){
+                            treenum++;
+                        }
+                        this.delMoney += treenum;
+                    }
+                    // 判断是否是采石场
+                    if(deviceType == DeviceType.Industry2){
+                        let stonenum = 0;
+                        if(this.tileArray[j][i].leftUpTile.deviceType == DeviceType.Rock){
+                            stonenum++;
+                        }
+                        if(this.tileArray[j][i].leftTile.deviceType == DeviceType.Rock){
+                            stonenum++;
+                        }
+                        if(this.tileArray[j][i].leftDownTile.deviceType == DeviceType.Rock){
+                            stonenum++;
+                        }
+                        if(this.tileArray[j][i].rightUpTile.deviceType == DeviceType.Rock){
+                            stonenum++;
+                        }
+                        if(this.tileArray[j][i].rightTile.deviceType == DeviceType.Rock){
+                            stonenum++;
+                        }
+                        if(this.tileArray[j][i].rightDownTile.deviceType == DeviceType.Rock){
+                            stonenum++;
+                        }
+                        this.delMoney += (stonenum * 3);
                     }
                 }
             }
@@ -372,6 +436,23 @@ export default class DataUtil {
         new DeviceFunc("公寓楼", 0, 0, 12, 20, 0, 0, 0, 0),
         new DeviceFunc("高层住宅", 0, 0, 20, 30, 0, 0, 0, 0),
         new DeviceFunc("垂直森林", 0, 0, 15, 40, 0, 0, 0, 0),
-        new DeviceFunc("商店街", 2, 2, 0, 5, 2, 0, 2, 0)
+        new DeviceFunc("商店街", 2, 2, 0, 5, 2, 0, 2, 0),
+        new DeviceFunc("公园", 2, 0, 0, 5, 3, 2, 0, 0),
+        new DeviceFunc("快餐店", 4, 0, 0, 5, 4, 0, 5, 0),
+        new DeviceFunc("大礼堂", 6, 0, 0, 5, 5, 5, 5, 0),
+        new DeviceFunc("体育馆", 8, 0, 0, 5, 6, 5, 5, 0),
+        new DeviceFunc("生态度假区", 9, 0, 0, 5, 6, 5, 10, 0),
+        new DeviceFunc("学校", 2, 0, 0, 0, 0, 5, -2, 0),
+        new DeviceFunc("活动室", 3, 0, 0, 0, 0, 8, -4, 0),
+        new DeviceFunc("图书馆", 5, 0, 0, 0, 0, 12, -6, 0),
+        new DeviceFunc("研究所", 7, 0, 0, 0, 0, 20, -8, 0),
+        new DeviceFunc("文化产业园", 9, 0, 0, 0, 0, 20, 5, 0),
+        new DeviceFunc("木材厂", 2, 0, 0, -5, 2, 0, 5, 0),
+        new DeviceFunc("采石场", 2, 0, 0, -5, 3, 0, 5, 0),
+        new DeviceFunc("风力磨坊", 4, 0, 0, -5, 3, 0, 10, 0),
+        new DeviceFunc("手工加工厂", 6, 0, 0, -10, 3, 0, 20, 0),
+        new DeviceFunc("重工长", 9, 0, 0, -15, 3, 0, 40, 0),
+        new DeviceFunc("高新产业园", 9, 0, 0, 0, 0, 0, 40, 0),
+        new DeviceFunc("固碳车间", 9, 0, 0, 0, 0, 0, 60, 0),
     ];
 }

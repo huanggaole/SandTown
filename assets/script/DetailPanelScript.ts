@@ -5,7 +5,7 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
-import DataUtil, { TileType } from "./DataUtil";
+import DataUtil, { DeviceType, TileType } from "./DataUtil";
 import DialogScript from "./DialogScript";
 import MapScript, { MapStatus } from "./MapScript";
 import MenuScript from "./MenuScript";
@@ -86,7 +86,7 @@ export default class DetailPanelScript extends cc.Component {
             if(this.currentTile.workerNum > 0){
                 this.currentTile.workerNum--;
                 this.freshWorkerInfo(this.currentTile);
-                if(MapScript.mapStatus == MapStatus.check){
+                if(MapScript.mapStatus == MapStatus.Check){
                     MapScript.updateCheckStatus();
                 }
             }
@@ -99,7 +99,7 @@ export default class DetailPanelScript extends cc.Component {
             if(this.currentTile.workerNum < this.currentTile.workerLimits){
                 this.currentTile.workerNum++;
                 this.freshWorkerInfo(this.currentTile);
-                if(MapScript.mapStatus == MapStatus.check){
+                if(MapScript.mapStatus == MapStatus.Check){
                     MapScript.updateCheckStatus();
                 }
             }
@@ -180,6 +180,12 @@ export default class DetailPanelScript extends cc.Component {
             if(tileAttr.moneyEffect > 0){
                 this.introLbl.string += tileAttr.moneyEffect + "点金钱，";
             }
+            if(tileAttr.name == "木材厂"){
+                this.introLbl.string += "周围每毗邻1棵云杉或侧柏，收入+1点金币。";
+            }
+            if(tileAttr.name == "采石场"){
+                this.introLbl.string += "周围每毗邻1格岩石，收入+3点金币。";
+            }
             if(tileAttr.moneyEffect < 0){
                 this.introLbl.string += "花费" + Math.abs(tileAttr.moneyEffect) + "点金钱，";
             }
@@ -190,7 +196,7 @@ export default class DetailPanelScript extends cc.Component {
                 this.introLbl.string += "增加" + tileAttr.happinessEffect + "点。"
             }
             if(tileAttr.happinessEffect < 0){
-                this.introLbl.string += "减少" + tileAttr.happinessEffect + "点。"
+                this.introLbl.string += "减少" + Math.abs(tileAttr.happinessEffect) + "点。"
             }
         }else if(tileAttr.populationEffect > 0){
             this.parentNode.height = 400;
@@ -247,7 +253,49 @@ export default class DetailPanelScript extends cc.Component {
             this.effectLbl.string += "粮食 + " + (tileAttr.foodEffect * workerNum) + "; ";
         }
         if(tileAttr.moneyEffect > 0){
-            this.effectLbl.string += "金钱 + "+ (tileAttr.moneyEffect * workerNum) + "; ";
+            let extraMoney = 0;
+            if(tile.deviceType == DeviceType.Industry1){
+                if(tile.leftUpTile.deviceType == DeviceType.CeBo || tile.leftUpTile.deviceType == DeviceType.YunShan){
+                    extraMoney++;
+                }
+                if(tile.leftTile.deviceType == DeviceType.CeBo || tile.leftTile.deviceType == DeviceType.YunShan){
+                    extraMoney++;
+                }
+                if(tile.leftDownTile.deviceType == DeviceType.CeBo || tile.leftDownTile.deviceType == DeviceType.YunShan){
+                    extraMoney++;
+                }
+                if(tile.rightUpTile.deviceType == DeviceType.CeBo || tile.rightUpTile.deviceType == DeviceType.YunShan){
+                    extraMoney++;
+                }
+                if(tile.rightTile.deviceType == DeviceType.CeBo || tile.rightTile.deviceType == DeviceType.YunShan){
+                    extraMoney++;
+                }
+                if(tile.rightDownTile.deviceType == DeviceType.CeBo || tile.rightDownTile.deviceType == DeviceType.YunShan){
+                    extraMoney++;
+                }
+            }
+            // 判断是否是采石场
+            if(tile.deviceType == DeviceType.Industry2){
+                if(tile.leftUpTile.deviceType == DeviceType.Rock){
+                    extraMoney +=3;
+                }
+                if(tile.leftTile.deviceType == DeviceType.Rock){
+                    extraMoney +=3;
+                }
+                if(tile.leftDownTile.deviceType == DeviceType.Rock){
+                    extraMoney +=3;
+                }
+                if(tile.rightUpTile.deviceType == DeviceType.Rock){
+                    extraMoney +=3;
+                }
+                if(tile.rightTile.deviceType == DeviceType.Rock){
+                    extraMoney +=3;
+                }
+                if(tile.rightDownTile.deviceType == DeviceType.Rock){
+                    extraMoney +=3;
+                }
+            }
+            this.effectLbl.string += "金钱 + "+ ((tileAttr.moneyEffect + extraMoney) * workerNum) + "; ";
         }
         if(tileAttr.moneyEffect < 0){
             this.effectLbl.string += "金钱 - " + (Math.abs(tileAttr.moneyEffect) * workerNum) + "; ";
@@ -259,7 +307,7 @@ export default class DetailPanelScript extends cc.Component {
             this.effectLbl.string += " + " + (tileAttr.happinessEffect * workerNum) + "。"
         }
         if(tileAttr.happinessEffect < 0){
-            this.effectLbl.string += " - " + (tileAttr.happinessEffect * workerNum) + "。"
+            this.effectLbl.string += " - " + Math.abs(tileAttr.happinessEffect * workerNum) + "。"
         }
     }
 
