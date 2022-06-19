@@ -3,6 +3,7 @@ import DialogScript from "./DialogScript";
 import TileScript from "./TileScript";
 import MenuScropt from "./MenuScript";
 import MapScript from "./MapScript";
+import ResearchScript from "./ResearchScript";
 
 const {ccclass, property} = cc._decorator;
 
@@ -21,6 +22,7 @@ export default class PlantScript extends cc.Component {
     infoLbl:cc.Label = null;
 
     static selectedIndex = 0;
+    static PlantBtns;
     start(): void {
         for(let i = 0; i < this.plantBtns.length; i++){
             this.plantBtns[i].node.on("click",()=>{
@@ -37,6 +39,7 @@ export default class PlantScript extends cc.Component {
                 this.infoLbl.string = PlantScript.introTxt[index];
             },this);
         }
+        PlantScript.PlantBtns = this.plantBtns;
     }
 
     static dealPlant(tile:TileScript){
@@ -60,8 +63,10 @@ export default class PlantScript extends cc.Component {
                 DialogScript.ShowDialog("不能将植物种在水体上。");
             } else if(tile.deviceType > -1){
                 DialogScript.ShowDialog("不能将植物种在其他植物上。");
-            } else if((this.selectedIndex == 6 || this.selectedIndex == 7) && tile.SWC < 15){
+            } else if((this.selectedIndex == 6 || this.selectedIndex == 7) && tile.SWC < 15 && ResearchScript.cultureStatus[1] != 1){
                 DialogScript.ShowDialog("目前，农田必须种在绿地（土壤含水量≥15%）上。研究“旱地培育”技术后，可以将农田种在泥地（土壤含水量≥10%）上。");
+            } else if((this.selectedIndex == 6 || this.selectedIndex == 7) && tile.SWC < 10 && ResearchScript.cultureStatus[1] == 1){
+                DialogScript.ShowDialog("目前，农田必须种在泥地或草地（土壤含水量≥10%）上。");
             } else if((this.selectedIndex == 5) && tile.SWC < 10){
                 DialogScript.ShowDialog("侧柏必须种在泥地或草地（土壤含水量≥10%）上。");
             } else {
@@ -96,7 +101,17 @@ export default class PlantScript extends cc.Component {
         for(let j = 0; j < DataUtil.tileArray.length; j++){
             for(let i = 0; i < DataUtil.tileArray[0].length; i++){
                 const tile = DataUtil.tileArray[j][i];
-                if(tile.SWC < 10 && tile.deviceType >= 0 && DataUtil.deviceAttr[tile.deviceType].plantFunc != null){
+                if(tile.SWC < 15 && ResearchScript.cultureStatus[1]!=1 && (tile.deviceType == DeviceType.Farm || tile.deviceType == DeviceType.FarmHigh)){
+                    tile.deviceType = -1;
+                    tile.deviceSF = null;
+                    tile.deviceNode.getComponent(cc.Sprite).spriteFrame = null;
+                    plantNum++;
+                }else if(tile.SWC < 10 && ResearchScript.cultureStatus[1]==1 && (tile.deviceType == DeviceType.Farm || tile.deviceType == DeviceType.FarmHigh)){
+                    tile.deviceType = -1;
+                    tile.deviceSF = null;
+                    tile.deviceNode.getComponent(cc.Sprite).spriteFrame = null;
+                    plantNum++;
+                }else if(tile.SWC < 10 && tile.deviceType >= 0 && DataUtil.deviceAttr[tile.deviceType].plantFunc != null){
                     const dieprop = DataUtil.deviceAttr[tile.deviceType].plantFunc.liveRate + DataUtil.deviceAttr[tile.deviceType].plantFunc.liveRatePerWorker * DataUtil.tileArray[j][i].workerNum;
                     console.log(dieprop);
                     const rnd = Math.random() * 100;
@@ -107,6 +122,7 @@ export default class PlantScript extends cc.Component {
                         plantNum++;
                     }
                 }
+                
             }
         }
         if(plantNum > 0){
@@ -122,6 +138,7 @@ export default class PlantScript extends cc.Component {
         2,
         2,
         2,
+        200,
     ];
 
     static introTxt = [
@@ -132,5 +149,6 @@ export default class PlantScript extends cc.Component {
         "沙地云杉：可以在一个空地块上种植沙地云杉。需要花费" + PlantScript.moneyCost[4] + "点金币。沙地云杉不需要人工维护，但生长较慢。",
         "侧柏：可以在一个空地块上种植侧柏。需要花费" + PlantScript.moneyCost[5] + "点金币。侧柏不需要人工维护，但必须种在泥地或草地上。",
         "农田：可以在一个空地块上种植农田。需要花费" + PlantScript.moneyCost[6] + "点金币。农田每个工人获得2点粮食，但只能种在草地上。",
+        "高级农田：可以在一个空地快上种植农田。需要花费" + PlantScript.moneyCost[7] + "点金币。高级农田每个工人获得10点粮食与10枚金币，但只能种在草地上。",
     ];
 }

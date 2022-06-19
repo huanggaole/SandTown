@@ -3,6 +3,7 @@ import DialogScript from "./DialogScript";
 import TileScript from "./TileScript";
 import MenuScropt from "./MenuScript";
 import MapScript from "./MapScript";
+import PlantScript from "./PlantScript";
 
 const {ccclass, property} = cc._decorator;
 
@@ -159,6 +160,43 @@ export default class ResearchScript extends cc.Component {
             DataUtil.deviceAttr[11].workerLimits = 4;
             DataUtil.deviceAttr[11].happinessEffectRange = 3;
         }
+        if(cIndex == 5){
+            DataUtil.deviceAttr[11].workerLimits = 6;
+            DataUtil.deviceAttr[11].happinessEffectRange = 4;
+        }
+        if(cIndex == 6){
+            PlantScript.PlantBtns[7].node.active = true;
+        }
+        if(cIndex == 10){
+            DataUtil.deviceAttr[11].name = "镇政府";
+            DataUtil.deviceAttr[11].workerLimits = 8;
+            DataUtil.deviceAttr[11].happinessEffectRange = 5;
+        }
+        if(cIndex == 15){
+            DataUtil.deviceAttr[11].workerLimits = 9;
+            DataUtil.deviceAttr[11].happinessEffectRange = 6;
+        }
+        if(cIndex == 16){
+            DataUtil.deviceAttr[DeviceType.Industry1].happinessEffect = -1;
+            DataUtil.deviceAttr[DeviceType.Industry2].happinessEffect = -1;
+            DataUtil.deviceAttr[DeviceType.Industry3].happinessEffect = -1;
+            DataUtil.deviceAttr[DeviceType.Industry3].moneyEffect = 30;
+            DataUtil.deviceAttr[DeviceType.Industry4].happinessEffect = -2;
+            DataUtil.deviceAttr[DeviceType.Industry5].happinessEffect = -3;
+        }
+        if(cIndex == 20){
+            DataUtil.deviceAttr[11].happinessEffectRange = 9;
+        }
+        if(cIndex == 21){
+            DataUtil.deviceAttr[DeviceType.SuoSuoShu].plantFunc.liveRate = 100;
+            DataUtil.deviceAttr[DeviceType.Shaji].plantFunc.liveRate = 100;
+            DataUtil.deviceAttr[DeviceType.HuaBang].plantFunc.liveRate = 100;
+            DataUtil.deviceAttr[DeviceType.YunShan].plantFunc.liveRate = 100;
+            DataUtil.deviceAttr[DeviceType.CeBo].plantFunc.liveRate = 100;
+            DataUtil.deviceAttr[DeviceType.Shaji].foodEffect = 2;
+            DataUtil.deviceAttr[DeviceType.Farm].foodEffect = 4;
+            DataUtil.deviceAttr[DeviceType.FarmHigh].foodEffect = 20;
+        }
         DataUtil.countParams();
     }
 
@@ -276,27 +314,27 @@ export default class ResearchScript extends cc.Component {
 
     static introTxt=[
         "目标是农民增收、农业发展、农村稳定。完成此研究将解锁建筑“平房小院”，并将“村委会”的最大工作人员数提升至4人，幸福度的影响范围提升至3单元格。",
-        "旱地培育：研究此技术后，农田可以建设在泥土块上。",
+        "旱地培育：研究此技术后，农田与高级农田可以建设在土壤含水量≥10%的泥土块上。",
         "农业代加工：研究此技术后，将解锁建筑“风力磨坊”。",
         "技术教育：研究此技术后，将解锁建筑“学校”。",
         "美丽乡村：研究此技术后，将解锁建筑“公园”。",
         "建设改善农民衣食住行，建设基础设施以及农民的生活保障机制。完成此研究将解锁建筑\"洋房别墅\"，并将\"村委会\"的最大工作人员数提升至6人，幸福度的影响范围提升至4单元格。",
-        "农业机械化：",
+        "农业机械化：研究此技术后，将解锁种植“高级农田”。",
         "农民职业化：研究此技术后，将解锁建筑“手工加工厂”。",
         "文化建设：研究此技术后，将解锁建筑“活动室”。",
         "便民生活圈：研究此技术后，将解锁建筑“快餐店”。",
-        "城镇化",
-        "岩土工程",
+        "将农村人口转化为城镇人口的过程。完成此研究将解锁建筑\"公寓\"，\"村委会\"改名为“镇政府，最大工作人员数提升至8人，幸福度的影响范围提升至5单元格。",
+        "岩土工程：研究此技术后，可以移除岩石，可以解锁建筑“修建水体”。",
         "工业自动化：研究此技术后，将解锁建筑“重工厂”。",
         "普及公共服务：研究此技术后，将解锁建筑“图书馆”。",
         "精神文明建设：研究此技术后，将解锁建筑“大礼堂”。",
-        "城市化",
-        "清洁能源",
+        "进一步完成现代城市转型，完成此研究将解锁建筑\"高层住宅\"，并将\"镇政府\"的最大工作人员数提升至9人，幸福度的影响范围提升至6单元格。",
+        "清洁能源：研究此技术后，所有工业建筑对环境产生的幸福度的降低影响将变为原来的1/5。“风力磨坊”可以发电，每位工人产出的金币数量变为30。",
         "产业升级：研究此技术后，将解锁建筑“高新产业园”。",
         "科技创新：研究此技术后，将解锁建筑“研究所”。",
         "全民健身：研究此技术后，将解锁建筑“体育馆”。",
-        "生态文明建设",
-        "生物科技",
+        "打造可持续发展的、面向未来的城市。完成此研究将解锁建筑\"高层住宅\"，并将\"镇政府\"的幸福度的影响范围提升至9单元格。",
+        "生物科技: 所有防风固沙、水土保持植物在没有工人时的存活率提升至100%，所有植物的食物产量翻倍。",
         "碳中和贸易：研究此技术后，将解锁建筑“固碳车间”。",
         "全民科普：研究此技术后，将解锁建筑“文化产业园”。",
         "绿色服务业：研究此技术后，将解锁建筑“生态度假区”。"

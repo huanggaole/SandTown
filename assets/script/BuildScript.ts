@@ -3,6 +3,7 @@ import DialogScript from "./DialogScript";
 import TileScript from "./TileScript";
 import MenuScropt from "./MenuScript";
 import MapScript from "./MapScript";
+import ResearchScript from "./ResearchScript";
 
 const {ccclass, property} = cc._decorator;
 
@@ -44,7 +45,7 @@ export default class BuildScript extends cc.Component {
     }
     static dealBuilding(tile:TileScript){
         if(this.selectedIndex == 0){
-            if(tile.deviceType == DeviceType.Rock || tile.tileType > 4){
+            if((tile.deviceType == DeviceType.Rock || tile.tileType > 4) && ResearchScript.cultureStatus[11] != 0){
                 DialogScript.ShowDialog("在研究“岩土工程”之后，方可用此功能铲平岩石。");
             }else if(tile.deviceType <= 0){
                 DialogScript.ShowDialog("此处没有建筑，请选择一处有建筑物的图块才能进行清除建筑操作。");

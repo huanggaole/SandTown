@@ -56,6 +56,9 @@ export default class MapScript extends cc.Component {
     @property([cc.Prefab])
     iconPrefab: Array<cc.Prefab> = [];
 
+    @property(cc.Camera)
+    camera: cc.Camera = null;
+
     static deviceSFs;
     // LIFE-CYCLE CALLBACKS:
 
@@ -67,8 +70,9 @@ export default class MapScript extends cc.Component {
     static MapLoc: cc.Vec2;
     static tileSprites;
     static iconPrefabs;
-
+    static camera:cc.Camera;
     start () {
+        MapScript.camera = this.camera;
         MapScript.tileSprites = this.tileSprites;
         MapScript.iconPrefabs = this.iconPrefab;
         MapScript.deviceSFs = this.deviceSprites; 
@@ -188,7 +192,6 @@ export default class MapScript extends cc.Component {
                     tile.workerLimits = DataUtil.deviceAttr[tile.deviceType].workerLimits;
                     tile.workerNum = DataUtil.deviceAttr[tile.deviceType].workerNum; 
                 }
-
             }
         }
         this.refreshMap();
@@ -293,15 +296,21 @@ export default class MapScript extends cc.Component {
             }
         }
     }
-
+    
     static getTouchLoc(touchX, touchY):cc.Vec2{
-        const x = touchX - MapScript.MapLoc.x - 480;
+        var out = new cc.Vec2(0,0);
+        /*
+        var touchP = new cc.Vec2(touchX - cc.view.getFrameSize().width / 2, touchY - cc.view.getFrameSize().height / 2);
+        this.camera.getCameraToWorldPoint(touchP, out);
+        console.log(out.x);
+        console.log(out.y);
+        */
+        const x = touchX - MapScript.MapLoc.x - 320 * cc.view.getVisibleSize().width / cc.view.getVisibleSize().height;
         const y = touchY - MapScript.MapLoc.y - 320;
         const loc = new cc.Vec2(-1,-1);
         // console.log(MapScript.TileLocs);
         for(let j = 0; j <  DataUtil.tileArray.length; j++){
             for(let i = 0; i < DataUtil.tileArray[0].length; i++){
-
                 if((x - DataUtil.tileArray[j][i].x)*(x - DataUtil.tileArray[j][i].x)+(y - DataUtil.tileArray[j][i].y)*(y - DataUtil.tileArray[j][i].y) < 3600){
                     loc.x = i;
                     loc.y = j;
@@ -445,6 +454,9 @@ export default class MapScript extends cc.Component {
         }
         if(ResearchScript.cultureStatus[10] == 1){
             BuildScript.BuildBtns[7].getComponent(cc.Button).node.active = true;
+        }
+        if(ResearchScript.cultureStatus[11] == 1){
+            BuildScript.BuildBtns[2].getComponent(cc.Button).node.active = true;
         }
         if(ResearchScript.cultureStatus[12] == 1){
             BuildScript.BuildBtns[25].getComponent(cc.Button).node.active = true;
