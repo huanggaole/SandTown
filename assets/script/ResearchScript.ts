@@ -57,7 +57,7 @@ export default class ResearchScript extends cc.Component {
             if(ResearchScript.selectedIndex >= 0){
                 ResearchScript.showCultureInfo(ResearchScript.selectedIndex);
             } else {
-                ResearchScript.infoLbl.string = "";
+                ResearchScript.showCultureInfo(0);
             }
         });
         for(let i = 0; i < 25; i++){
@@ -97,6 +97,7 @@ export default class ResearchScript extends cc.Component {
         },this);
 
         ResearchScript.refreshBtns();
+        ResearchScript.showCultureInfo(0);
     }
 
     static refreshBtns(){

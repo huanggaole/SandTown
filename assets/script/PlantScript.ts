@@ -31,8 +31,18 @@ export default class PlantScript extends cc.Component {
             if(PlantScript.InfoLbl){
                 PlantScript.InfoLbl.string = LanguageManager.getPlantIntro(PlantScript.selectedIndex);
             }
+            for(let i = 0; i < this.plantBtns.length; i++){
+                const lbl = this.plantBtns[i].node.getComponentInChildren(cc.Label);
+                if(lbl){
+                    lbl.string = LanguageManager.getPlantName(i);
+                }
+            }
         });
         for(let i = 0; i < this.plantBtns.length; i++){
+            const lbl = this.plantBtns[i].node.getComponentInChildren(cc.Label);
+            if(lbl){
+                lbl.string = LanguageManager.getPlantName(i);
+            }
             this.plantBtns[i].node.on("click",()=>{
                 const index = i;
                 for(let j = 0; j < this.plantBtns.length; j++){
@@ -47,15 +57,18 @@ export default class PlantScript extends cc.Component {
                 this.infoLbl.string = LanguageManager.getPlantIntro(index);
             },this);
         }
+        if(this.infoLbl){
+            this.infoLbl.string = LanguageManager.getPlantIntro(PlantScript.selectedIndex);
+        }
         PlantScript.PlantBtns = this.plantBtns;
     }
 
     static dealPlant(tile:TileScript){
         if(this.selectedIndex == 0){
             if(tile.deviceType < 0 || tile.deviceType == DeviceType.Rock){
-                DialogScript.ShowDialog("此处没有植物，请选择一处有植物的图块才能进行清除植物操作。");
+                DialogScript.ShowDialog(LanguageManager.t("dlg_no_plant_here"));
             }else if(tile.tileType == TileType.Stone){
-                DialogScript.ShowDialog("“清除植物”按钮不能用于清除建筑用地，清除建筑用地请使用“建筑”功能下的“清除建筑”按钮。");
+                DialogScript.ShowDialog(LanguageManager.t("dlg_clear_plant_not_for_construction"));
             }else{
                 tile.deviceType = -1;
                 tile.deviceSF = null;
@@ -64,19 +77,19 @@ export default class PlantScript extends cc.Component {
             }
         } else if (this.selectedIndex > 0){
             if(tile.deviceType == DeviceType.Rock){
-                DialogScript.ShowDialog("不能将植物种在岩石上。");
+                DialogScript.ShowDialog(LanguageManager.t("dlg_cannot_plant_on_rock"));
             } else if(tile.tileType == TileType.Stone){
-                DialogScript.ShowDialog("不能将植物种在建筑用地上。");
+                DialogScript.ShowDialog(LanguageManager.t("dlg_cannot_plant_on_construction"));
             } else if(tile.tileType == TileType.Water){
-                DialogScript.ShowDialog("不能将植物种在水体上。");
+                DialogScript.ShowDialog(LanguageManager.t("dlg_cannot_plant_on_water"));
             } else if(tile.deviceType > -1){
-                DialogScript.ShowDialog("不能将植物种在其他植物上。");
+                DialogScript.ShowDialog(LanguageManager.t("dlg_cannot_plant_on_other_plant"));
             } else if((this.selectedIndex == 6 || this.selectedIndex == 7) && tile.SWC < 15 && ResearchScript.cultureStatus[1] != 1){
-                DialogScript.ShowDialog("目前，农田必须种在绿地（土壤含水量≥15%）上。研究“旱地培育”技术后，可以将农田种在泥地（土壤含水量≥10%）上。");
+                DialogScript.ShowDialog(LanguageManager.t("dlg_farm_requires_grass_pre_research"));
             } else if((this.selectedIndex == 6 || this.selectedIndex == 7) && tile.SWC < 10 && ResearchScript.cultureStatus[1] == 1){
-                DialogScript.ShowDialog("目前，农田必须种在泥地或草地（土壤含水量≥10%）上。");
+                DialogScript.ShowDialog(LanguageManager.t("dlg_farm_requires_dirt_or_grass_post_research"));
             } else if((this.selectedIndex == 5) && tile.SWC < 10){
-                DialogScript.ShowDialog("侧柏必须种在泥地或草地（土壤含水量≥10%）上。");
+                DialogScript.ShowDialog(LanguageManager.t("dlg_thuja_requires_dirt_or_grass"));
             } else {
                 tile.deviceType = this.selectedIndex;
                 tile.workerLimits = DataUtil.deviceAttr[tile.deviceType].workerLimits;
@@ -134,7 +147,7 @@ export default class PlantScript extends cc.Component {
             }
         }
         if(plantNum > 0){
-            DialogScript.ShowDialog("由于恶劣环境的影响，沙地上有" + plantNum + "颗植物死亡了。");
+            DialogScript.ShowDialog(LanguageManager.t("dlg_plants_dead", { num: plantNum }));
         }
     }
 

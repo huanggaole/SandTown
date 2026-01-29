@@ -6,6 +6,7 @@
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
 import MapScript from "./MapScript";
+import LanguageManager from "./LanguageManager";
 
 const {ccclass, property} = cc._decorator;
 
@@ -44,6 +45,27 @@ export default class CheckClass extends cc.Component {
 
     start () {
         const buttons = [this.populationBtn, this.workerBtn, this.cultureBtn, this.moneyBtn, this.foodBtn, this.SWCBtn];
+        const labels: cc.Label[] = [];
+        const keys: string[] = [];
+        for (let i = 0; i < buttons.length; i++) {
+            const lbl = buttons[i].node.getComponentInChildren(cc.Label);
+            labels.push(lbl);
+            if (lbl) {
+                const init = (lbl.string || "").trim();
+                const k = LanguageManager.findKeyByValue(init) || init;
+                keys.push(k);
+                lbl.string = LanguageManager.t(k);
+            } else {
+                keys.push("");
+            }
+        }
+        LanguageManager.onChange(() => {
+            for (let i = 0; i < labels.length; i++) {
+                if (labels[i] && keys[i]) {
+                    labels[i].string = LanguageManager.t(keys[i]);
+                }
+            }
+        });
         for(let i = 0; i< buttons.length; i++){
             const index = i;
             buttons[i].node.on("click", ()=>{

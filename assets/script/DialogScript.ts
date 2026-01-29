@@ -5,6 +5,7 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
+import LanguageManager from "./LanguageManager";
 const {ccclass, property} = cc._decorator;
 
     @ccclass
@@ -42,7 +43,9 @@ export default class DialogScript extends cc.Component {
     }
 
     static ShowDialog(info:string){
-        this.infoList.push(info);
+        const key = LanguageManager.findKeyByValue(info);
+        const msg = key ? LanguageManager.t(key) : info;
+        this.infoList.push(msg);
         this.InfoLbl.string = this.infoList[0];
         this.PNode.active = true;
     }

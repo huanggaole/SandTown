@@ -30,9 +30,21 @@ export default class BuildScript extends cc.Component {
             if(this.infoLbl){
                 this.infoLbl.string = LanguageManager.getBuildIntro(BuildScript.selectedIndex);
             }
+            for(let i = 0; i < this.buildBtns.length; i++){
+                const lbl = this.buildBtns[i].node.getComponentInChildren(cc.Label);
+                if(lbl){
+                    lbl.string = LanguageManager.getBuildName(i);
+                }
+            }
         });
         for(let i = 0; i < this.buildBtns.length; i++){
             this.buildBtns[i].getComponent(cc.Button).node.getChildByName("Background").getChildByName("buildingCost").getComponent(cc.Label).string = "" + BuildScript.moneyCost[i];
+            {
+                const lbl = this.buildBtns[i].node.getComponentInChildren(cc.Label);
+                if(lbl){
+                    lbl.string = LanguageManager.getBuildName(i);
+                }
+            }
             this.buildBtns[i].node.on("click",()=>{
                 const index = i;
                 for(let j = 0; j < this.buildBtns.length; j++){
@@ -47,16 +59,19 @@ export default class BuildScript extends cc.Component {
                 this.infoLbl.string = LanguageManager.getBuildIntro(index);
             },this);
         }
+        if(this.infoLbl){
+            this.infoLbl.string = LanguageManager.getBuildIntro(BuildScript.selectedIndex);
+        }
         BuildScript.BuildBtns = this.buildBtns;
     }
     static dealBuilding(tile:TileScript){
         if(this.selectedIndex == 0){
             if((tile.deviceType == DeviceType.Rock || tile.tileType > 4) && ResearchScript.cultureStatus[11] != 0){
-                DialogScript.ShowDialog("在研究“岩土工程”之后，方可用此功能铲平岩石。");
+                DialogScript.ShowDialog(LanguageManager.t("dlg_geotech_needed"));
             }else if(tile.deviceType <= 0){
-                DialogScript.ShowDialog("此处没有建筑，请选择一处有建筑物的图块才能进行清除建筑操作。");
+                DialogScript.ShowDialog(LanguageManager.t("dlg_no_building"));
             }else if(tile.deviceType == DeviceType.VillageCommittee){
-                DialogScript.ShowDialog("此建筑为小镇的政府建筑，不能被清除。");
+                DialogScript.ShowDialog(LanguageManager.t("dlg_government_unclearable"));
             }else if(tile.tileType == TileType.Stone){
                 if(DataUtil.deviceAttr[tile.deviceType].populationEffect > 0){
                     DataUtil.laborNum -= DataUtil.deviceAttr[tile.deviceType].populationEffect;
@@ -66,19 +81,19 @@ export default class BuildScript extends cc.Component {
                 tile.deviceNode.getComponent(cc.Sprite).spriteFrame = null;
                 DataUtil.money -= this.moneyCost[0];
             }else{
-                DialogScript.ShowDialog("“清除建筑”按钮不能用于清除植物，清除植物请使用“种植”功能下的“清除植物”按钮。");
+                DialogScript.ShowDialog(LanguageManager.t("dlg_clear_building_not_for_plants"));
             }
         } else if (this.selectedIndex == 1){
             if(tile.deviceType == DeviceType.Rock || tile.tileType > 4){
-                DialogScript.ShowDialog("在将土地改建为建设用地前，请先清除此地块上的岩石清除。需要研究“岩土工程”。");
+                DialogScript.ShowDialog(LanguageManager.t("dlg_clear_rock_before_construction"));
             }else if(tile.deviceType > 0){
-                DialogScript.ShowDialog("在将土地改建为建设用地前，请先清除此地块上的植物。");
+                DialogScript.ShowDialog(LanguageManager.t("dlg_clear_plants_before_construction"));
             }else if(tile.tileType == TileType.Stone){
-                DialogScript.ShowDialog("当前土地块已经是建设用地了。");
+                DialogScript.ShowDialog(LanguageManager.t("dlg_already_construction"));
             }else if(tile.tileType == TileType.Water){
-                DialogScript.ShowDialog("在将土地改建为建设用地前，请先将水体改建成草地或泥地。");
+                DialogScript.ShowDialog(LanguageManager.t("dlg_water_to_grass_or_dirt_before_construction"));
             }else if(tile.tileType == TileType.Sand){
-                DialogScript.ShowDialog("沙土松散，无法进行建设。请先提高土壤含水量。");
+                DialogScript.ShowDialog(LanguageManager.t("dlg_sand_cannot_construct"));
             }else if(tile.tileType == TileType.Dirt || tile.tileType == TileType.Grass){
                 tile.tileType = TileType.Stone;
                 tile.tileNode.getComponent(cc.Sprite).spriteFrame = tile.tileSF = cc.instantiate(MapScript.tileSprites[tile.tileType]).getComponent(cc.Sprite).spriteFrame;
@@ -86,15 +101,15 @@ export default class BuildScript extends cc.Component {
             }
         } else if (this.selectedIndex == 2){
             if(tile.deviceType == DeviceType.Rock || tile.tileType > 4){
-                DialogScript.ShowDialog("在将土地改建为水体前，请先清除此地块上的岩石清除。需要研究“岩土工程”。");
+                DialogScript.ShowDialog(LanguageManager.t("dlg_clear_rock_before_water"));
             }else if(tile.tileType == TileType.Water){
-                DialogScript.ShowDialog("当前土地块已经是水体了。");
+                DialogScript.ShowDialog(LanguageManager.t("dlg_already_water"));
             }else if(tile.deviceType > 0){
-                DialogScript.ShowDialog("在将土地改建为水体前，请先清除此地块上的植物或建筑。");
+                DialogScript.ShowDialog(LanguageManager.t("dlg_clear_plants_or_building_before_water"));
             }else if(tile.tileType == TileType.Stone){
-                DialogScript.ShowDialog("在将建设用地改建为水体前，请先“退建还草”，将建设用地改建为草地或泥地。");
+                DialogScript.ShowDialog(LanguageManager.t("dlg_restore_green_before_build_water"));
             }else if(tile.tileType == TileType.Sand || tile.tileType == TileType.Dirt){
-                DialogScript.ShowDialog("只有土壤含水量较高的绿地才能挖掘出水体。");
+                DialogScript.ShowDialog(LanguageManager.t("dlg_only_restore_on_construction_or_water"));
             }else if(tile.tileType == TileType.Grass){
                 tile.tileType = TileType.Water;
                 tile.tileNode.getComponent(cc.Sprite).spriteFrame = tile.tileSF = cc.instantiate(MapScript.tileSprites[tile.tileType]).getComponent(cc.Sprite).spriteFrame;
@@ -102,9 +117,9 @@ export default class BuildScript extends cc.Component {
             }
         } else if (this.selectedIndex == 3){
             if(tile.tileType != TileType.Water && tile.tileType != TileType.Stone){
-                DialogScript.ShowDialog("只能对建设用地或水体进行复土还绿操作。");
+                DialogScript.ShowDialog(LanguageManager.t("dlg_only_restore_on_construction_or_water"));
             } else if(tile.deviceType > 0){
-                DialogScript.ShowDialog("在将建设用地复土还绿前，请先清除此地块上的建筑。");
+                DialogScript.ShowDialog(LanguageManager.t("dlg_clear_building_before_restore"));
             }else{
                 if(tile.SWC >= 15){
                     tile.tileType = TileType.Grass;
@@ -116,9 +131,9 @@ export default class BuildScript extends cc.Component {
             }
         } else {
             if(tile.tileType != TileType.Stone){
-                DialogScript.ShowDialog("建筑必须建造在建设用地上，请先将此地块改造为建设用地。");
+                DialogScript.ShowDialog(LanguageManager.t("dlg_build_on_construction_required"));
             } else if (tile.deviceType > 0){
-                DialogScript.ShowDialog("此建筑用地上已有其他建筑，请先清除原有建筑才能建造新建筑。");
+                DialogScript.ShowDialog(LanguageManager.t("dlg_construction_has_building"));
             } else {
                 tile.deviceType = this.selectedIndex + this.firstBuildingIndex - 4;
                 tile.workerLimits = DataUtil.deviceAttr[tile.deviceType].workerLimits;

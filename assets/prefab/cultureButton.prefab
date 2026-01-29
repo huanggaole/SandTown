@@ -291,8 +291,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 62,
-      "height": 24.68
+      "width": 80,
+      "height": 20.9
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -346,7 +346,7 @@
     "_string": "建设用地",
     "_N$string": "建设用地",
     "_fontSize": 15,
-    "_lineHeight": 18,
+    "_lineHeight": 15.2,
     "_enableWrapText": true,
     "_N$file": null,
     "_isSystemFontUsed": true,
@@ -357,7 +357,7 @@
     "_N$horizontalAlign": 1,
     "_N$verticalAlign": 1,
     "_N$fontFamily": "Arial",
-    "_N$overflow": 0,
+    "_N$overflow": 3,
     "_N$cacheMode": 0,
     "_id": ""
   },

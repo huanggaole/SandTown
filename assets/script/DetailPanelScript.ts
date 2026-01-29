@@ -10,6 +10,7 @@ import DialogScript from "./DialogScript";
 import MapScript, { MapStatus } from "./MapScript";
 import MenuScript from "./MenuScript";
 import TileScript from "./TileScript";
+import LanguageManager from "./LanguageManager";
 
 const {ccclass, property} = cc._decorator;
 
@@ -93,7 +94,7 @@ export default class DetailPanelScript extends cc.Component {
         },this);
         this.addBtn.node.on("click",()=>{
             if(DataUtil.labourPoints <=0){
-                DialogScript.ShowDialog("小镇当前已没有多余的人力点数。请先减少其他工作场所的工作人员以增加可用的人力点数。");
+                DialogScript.ShowDialog(LanguageManager.t("need_labors"));
                 return;
             }
             if(this.currentTile.workerNum < this.currentTile.workerLimits){
@@ -117,7 +118,7 @@ export default class DetailPanelScript extends cc.Component {
         this.currentTile = tile;
         this.parentNode.active = true;
         this.tile_icon.spriteFrame = tile.tileSF;
-        this.SWCLbl.string = "土壤含水量:" + Math.round(tile.SWC * 10) / 10.0 + "%";
+        this.SWCLbl.string = LanguageManager.t("soil_moisture") + Math.round(tile.SWC * 10) / 10.0 + "%";
         if(tile.deviceSF == null){
             this.device_icon.node.active = false;
         }else{
@@ -125,25 +126,36 @@ export default class DetailPanelScript extends cc.Component {
             this.device_icon.node.active = true;
         }
         if(tile.tileType == TileType.Sand || tile.tileType == TileType.Sand_H){
-            this.introLbl.string = "土壤含水量小于10%时为沙地，可以通过种植防风固沙植物提高沙地的土壤含水量。";
+            this.introLbl.string = LanguageManager.t("intro_sand");
         }
         if(tile.tileType == TileType.Dirt || tile.tileType == TileType.Dirt_H){
-            this.introLbl.string = "土壤含水量在10%~15%之间为泥地，可以通过种植植物提高泥地的土壤含水量。泥地可被建设为建设用地。";
+            this.introLbl.string = LanguageManager.t("intro_dirt");
         }
         if(tile.tileType == TileType.Grass || tile.tileType == TileType.Grass_H){
-            this.introLbl.string = "土壤含水量在15%以上为草地，草地上可以种植庄稼。草地可以被建设为建设用地。草地可以被建设为水体。";
+            this.introLbl.string = LanguageManager.t("intro_grass");
         }
         if(tile.tileType == TileType.Water){
-            this.introLbl.string = "水体可以被改建为泥地或草地。当土壤含水量降至15%以下时，水体会退化为泥地。";
+            this.introLbl.string = LanguageManager.t("intro_water");
         }
         if(tile.deviceType < 0){
-            this.discLbl.string = this.tileName[tile.tileType];
+            this.discLbl.string = LanguageManager.getTileName(tile.tileType);
             this.parentNode.height = 200;
             this.workerNode.active = false;
             this.HouseNode.active = false;
             return;
         }else{
-            this.discLbl.string = this.tileName[tile.tileType] + " · " + DataUtil.deviceAttr[tile.deviceType].name;
+            const deviceType = tile.deviceType;
+            let deviceName = "";
+            if (deviceType === DeviceType.VillageCommittee) {
+                deviceName = LanguageManager.t("village_committee_name");
+            } else if (deviceType >= 12) {
+                deviceName = LanguageManager.getBuildName(deviceType - 12 + 4);
+            } else if (deviceType >= 1 && deviceType <= 7) {
+                deviceName = LanguageManager.getPlantName(deviceType);
+            } else {
+                deviceName = DataUtil.deviceAttr[deviceType].name;
+            }
+                        this.discLbl.string = LanguageManager.getTileName(tile.tileType) + " · " + deviceName;
         }
         const tileAttr = DataUtil.deviceAttr[tile.deviceType];
         if(tileAttr.plantFunc != null){
@@ -157,57 +169,72 @@ export default class DetailPanelScript extends cc.Component {
                 this.workerNode.active = false;
                 this.HouseNode.active = false;
             }
-            this.introLbl.string = tileAttr.name + "每回合的存活率为" + tileAttr.plantFunc.liveRate + "%，";
-            if(tileAttr.plantFunc.liveRatePerWorker > 0){
-                this.introLbl.string += "每个工人提升植物" + tileAttr.plantFunc.liveRatePerWorker + "%的存活率，";
+            const deviceType = tile.deviceType;
+            let deviceName = "";
+            if (deviceType === DeviceType.VillageCommittee) {
+                deviceName = LanguageManager.t("village_committee_name");
+            } else if (deviceType >= 12) {
+                deviceName = LanguageManager.getBuildName(deviceType - 12 + 4);
+            } else if (deviceType >= 1 && deviceType <= 7) {
+                deviceName = LanguageManager.getPlantName(deviceType);
+            } else {
+                deviceName = DataUtil.deviceAttr[deviceType].name;
             }
-            this.introLbl.string += "每回合提升所在图块" + tileAttr.plantFunc.SWCEffect + "%的土壤含水量，最高提升至" + tileAttr.plantFunc.highestSWC + "%。";
+            this.introLbl.string = deviceName + " " + LanguageManager.t("per_worker_prefix");
+            if(tileAttr.plantFunc.liveRatePerWorker > 0){
+                this.introLbl.string += LanguageManager.t("per_worker_survival", { val: tileAttr.plantFunc.liveRatePerWorker });
+            }
+            this.introLbl.string += LanguageManager.t("per_turn_swc_up_to", { swc: tileAttr.plantFunc.SWCEffect, max: tileAttr.plantFunc.highestSWC });
             if(tileAttr.foodEffect > 0){
-                this.introLbl.string += "每位工人产生" + tileAttr.foodEffect + "点粮食。";
+                this.introLbl.string += LanguageManager.t("per_worker_food", { val: tileAttr.foodEffect });
             }
         } else if(tileAttr.workerLimits > 0){
             this.parentNode.height = 400;
             this.freshWorkerInfo(tile);
             this.workerNode.active = true;
             this.HouseNode.active = false;
-            this.introLbl.string = "每位工作人员可以产生";
+            this.introLbl.string = LanguageManager.t("per_worker_prefix");
             if(tileAttr.cultureEffect > 0){
-                this.introLbl.string += tileAttr.cultureEffect + "点文化，";
+                this.introLbl.string += LanguageManager.t("per_worker_culture", { val: tileAttr.cultureEffect });
             }
             if(tileAttr.foodEffect > 0){
-                this.introLbl.string += tileAttr.foodEffect + "点粮食，";
+                this.introLbl.string += LanguageManager.t("per_worker_food", { val: tileAttr.foodEffect });
             }
             if(tileAttr.moneyEffect > 0){
-                this.introLbl.string += tileAttr.moneyEffect + "点金钱，";
+                this.introLbl.string += LanguageManager.t("per_worker_money", { val: tileAttr.moneyEffect });
             }
             if(tileAttr.name == "木材厂"){
-                this.introLbl.string += "周围每毗邻1棵云杉或侧柏，收入+1点金币。";
+                this.introLbl.string += LanguageManager.t("lumber_adj_bonus");
             }
             if(tileAttr.name == "采石场"){
-                this.introLbl.string += "周围每毗邻1格岩石，收入+3点金币。";
+                this.introLbl.string += LanguageManager.t("quarry_adj_bonus");
             }
             if(tileAttr.moneyEffect < 0){
-                this.introLbl.string += "花费" + Math.abs(tileAttr.moneyEffect) + "点金钱，";
+                this.introLbl.string += LanguageManager.t("per_worker_cost_money", { val: Math.abs(tileAttr.moneyEffect) });
             }
             if(tileAttr.happinessEffectRange > 0){
-                this.introLbl.string += tileAttr.happinessEffectRange + "格以内的住宅建筑的幸福度"
+                this.introLbl.string += " " + LanguageManager.t("happiness_range_label", { range: tileAttr.happinessEffectRange });
             }
             if(tileAttr.happinessEffect > 0){
-                this.introLbl.string += "增加" + tileAttr.happinessEffect + "点。"
+                this.introLbl.string += LanguageManager.t("happiness_plus", { val: tileAttr.happinessEffect });
             }
             if(tileAttr.happinessEffect < 0){
-                this.introLbl.string += "减少" + Math.abs(tileAttr.happinessEffect) + "点。"
+                this.introLbl.string += LanguageManager.t("happiness_minus", { val: Math.abs(tileAttr.happinessEffect) });
             }
         }else if(tileAttr.populationEffect > 0){
             this.parentNode.height = 400;
-            this.introLbl.string = "此建筑为住宅建筑，可以吸引" + tileAttr.populationEffect + "名工作人员前来居住。"
+            this.introLbl.string = LanguageManager.t("residential_intro", { num: tileAttr.populationEffect });
             if(tileAttr.happinessEffect > 0){
-                this.introLbl.string += "住在这个建筑中的居民可获得" + tileAttr.happinessEffect + "点幸福度。";
+                this.introLbl.string += " " + LanguageManager.t("residential_happiness_gain", { val: tileAttr.happinessEffect });
             }
             this.workerNode.active = false;
-            this.lodgerLbl.string = "居住的人数：" + tileAttr.populationEffect + "\n住在这里的幸福度：" + tile.happinessTotal + "\n\n幸福度来源：\n" + tileAttr.happinessEffect + "来自住宅本身提供";
+            this.lodgerLbl.string = LanguageManager.t("lodger_residents", { num: tileAttr.populationEffect })
+                + "\n" + LanguageManager.t("lodger_happiness_here", { val: tile.happinessTotal })
+                + "\n\n" + LanguageManager.t("lodger_sources_header") + "\n"
+                + LanguageManager.t("lodger_house_self", { val: tileAttr.happinessEffect });
             for(let i = 0; i < tile.happinessSource.length; i++){
-                this.lodgerLbl.string += "\n" + tile.happinessSource[i].value + "来自" + tile.happinessSource[i].dist + "格外的" + tile.happinessSource[i].name;
+                const srcName = this.localizeDeviceName(tile.happinessSource[i].name);
+                this.lodgerLbl.string += "\n" + LanguageManager.t("lodger_source_item", { val: tile.happinessSource[i].value, name: srcName, dist: tile.happinessSource[i].dist });
             }
             this.HouseNode.active = true;
         }
@@ -225,7 +252,7 @@ export default class DetailPanelScript extends cc.Component {
         const workerLimits = tile.workerLimits;
         const workerNum = tile.workerNum;
         // console.log(tile, workerLimits, workerNum);
-        this.workerLbl.string = "工作人员个数：" + workerNum + "/" + workerLimits;
+        this.workerLbl.string = LanguageManager.t("worker_count") + workerNum + "/" + workerLimits;
         for(let i = 0; i < this.pawnSprites.length; i++){
             if(i >= workerLimits){
                 this.pawnSprites[i].node.active = false;
@@ -242,15 +269,15 @@ export default class DetailPanelScript extends cc.Component {
         const tileAttr = DataUtil.deviceAttr[tile.deviceType];
         this.effectLbl.string = "";
         if(tileAttr.plantFunc != null){
-            this.effectLbl.string += "每回合土壤含水量 + " + (tileAttr.plantFunc.SWCEffect) + "%; \n";
-            this.effectLbl.string += "提升土壤含水量上限为" + (tileAttr.plantFunc.highestSWC) + "%; \n";
-            this.effectLbl.string += "存活率：" + (tileAttr.plantFunc.liveRate + tileAttr.plantFunc.liveRatePerWorker * workerNum) + "%; ";
+            this.effectLbl.string += LanguageManager.t("soil_moisture_increase_prefix") + (tileAttr.plantFunc.SWCEffect) + "%; \n";
+            this.effectLbl.string += LanguageManager.t("soil_moisture_increase_suffix") + (tileAttr.plantFunc.highestSWC) + "%; \n";
+            this.effectLbl.string += LanguageManager.t("population_label") + (tileAttr.plantFunc.liveRate + tileAttr.plantFunc.liveRatePerWorker * workerNum) + "%; ";
         }
         if(tileAttr.cultureEffect > 0){
-            this.effectLbl.string += "文化 + " + (tileAttr.cultureEffect * workerNum) + "; ";
+            this.effectLbl.string += LanguageManager.t("effect_culture_plus", { val: (tileAttr.cultureEffect * workerNum) }) + "; ";
         }
         if(tileAttr.foodEffect > 0){
-            this.effectLbl.string += "粮食 + " + (tileAttr.foodEffect * workerNum) + "; ";
+            this.effectLbl.string += LanguageManager.t("effect_food_plus", { val: (tileAttr.foodEffect * workerNum) }) + "; ";
         }
         if(tileAttr.moneyEffect > 0){
             let extraMoney = 0;
@@ -295,22 +322,32 @@ export default class DetailPanelScript extends cc.Component {
                     extraMoney +=3;
                 }
             }
-            this.effectLbl.string += "金钱 + "+ ((tileAttr.moneyEffect + extraMoney) * workerNum) + "; ";
+            this.effectLbl.string += LanguageManager.t("effect_money_plus", { val: ((tileAttr.moneyEffect + extraMoney) * workerNum) }) + "; ";
         }
         if(tileAttr.moneyEffect < 0){
-            this.effectLbl.string += "金钱 - " + (Math.abs(tileAttr.moneyEffect) * workerNum) + "; ";
+            this.effectLbl.string += LanguageManager.t("effect_money_minus", { val: (Math.abs(tileAttr.moneyEffect) * workerNum) }) + "; ";
         }
         if(tileAttr.happinessEffectRange > 0){
-            this.effectLbl.string += "\n" + tileAttr.happinessEffectRange + "格以内住宅幸福度"
+            this.effectLbl.string += "\n" + LanguageManager.t("happiness_range_label", { range: tileAttr.happinessEffectRange });
         }
         if(tileAttr.happinessEffect > 0){
-            this.effectLbl.string += " + " + (tileAttr.happinessEffect * workerNum) + "。"
+            this.effectLbl.string += LanguageManager.t("happiness_plus", { val: (tileAttr.happinessEffect * workerNum) });
         }
         if(tileAttr.happinessEffect < 0){
-            this.effectLbl.string += " - " + Math.abs(tileAttr.happinessEffect * workerNum) + "。"
+            this.effectLbl.string += LanguageManager.t("happiness_minus", { val: Math.abs(tileAttr.happinessEffect * workerNum) });
         }
     }
 
-    tileName = ["沙地","泥地","草地","水体","建设用地","沙坡","泥坡","草坡"];
-    
+    localizeDeviceName(name: string): string {
+        if (LanguageManager.current === "zh") return name;
+        if (name === DataUtil.deviceAttr[DeviceType.VillageCommittee].name) {
+            return LanguageManager.t("village_committee_name");
+        }
+        const pIdx = LanguageManager.plantNameZh.indexOf(name);
+        if (pIdx >= 0) return LanguageManager.getPlantName(pIdx);
+        const bIdx = LanguageManager.buildNameZh.indexOf(name);
+        if (bIdx >= 0) return LanguageManager.getBuildName(bIdx);
+        return name;
+    }
+
 }

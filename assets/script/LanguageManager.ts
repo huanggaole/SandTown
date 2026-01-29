@@ -39,7 +39,7 @@ export default class LanguageManager extends cc.Component {
     static getPlantIntro(index: number): string {
         const arr = this.current === "zh" ? this.plantIntroZh : this.plantIntroEn;
         return arr[index] || "";
-
+    }
     static getBuildIntro(index: number): string {
         const arr = this.current === "zh" ? this.buildIntroZh : this.buildIntroEn;
         return arr[index] || "";
@@ -55,6 +55,20 @@ export default class LanguageManager extends cc.Component {
         return arr[index] || "";
     }
 
+    static getPlantName(index:number):string{
+        const arr = this.current === "zh" ? this.plantNameZh : this.plantNameEn;
+        return arr[index] || "";
+    }
+
+    static getBuildName(index:number):string{
+        const arr = this.current === "zh" ? this.buildNameZh : this.buildNameEn;
+        return arr[index] || "";
+    }
+
+    static getTileName(index:number):string{
+        const arr = this.current === "zh" ? this.tileNameZh : this.tileNameEn;
+        return arr[index] || "";
+    }
     static zh: Record<string, string> = {
         round_label: "第 {n} 回合",
         research_already: "(已研究)",
@@ -63,9 +77,95 @@ export default class LanguageManager extends cc.Component {
         lang_button: "中文",
         title_start: "开始游戏",
         title_intro: "规则介绍",
+        next_round: "下一回合",
+        start_research: "开始研究",
+        intro_sand: "土壤含水量小于10%时为沙地，可以通过种植防风固沙植物提高沙地的土壤含水量。",
+        intro_dirt: "土壤含水量在10%~15%之间为泥地，可以通过种植植物提高泥地的土壤含水量。泥地可被建设为建设用地。",
+        intro_grass: "土壤含水量在15%以上为草地，草地上可以种植庄稼。草地可以被建设为建设用地。草地可以被建设为水体。",
+        intro_water: "水体可以被改建为泥地或草地。当土壤含水量降至15%以下时，水体会退化为泥地。",
+        soil_moisture: "土壤含水量:",
+        // device_title: "{tile} · {device}",
+        worker_count: "工作人员个数：",
+        per_worker_prefix: "每位工作人员可以产生",
+        per_worker_survival: " 每位工作人员提升{val}%存活率，",
+        per_turn_swc_up_to: " 每回合土壤含水量 +{swc}%，上限为{max}%。",
+        per_worker_food: " 每位工作人员产生{val}点粮食，",
+        per_worker_culture: " 每位工作人员产生{val}点文化，",
+        per_worker_money: " 每位工作人员产生{val}点金钱，",
+        per_worker_cost_money: " 每位工作人员花费{val}点金钱，",
+        lumber_adj_bonus: " 每相邻一棵云杉/侧柏，收入 +1。",
+        quarry_adj_bonus: " 每相邻一格岩石，收入 +3。",
+        happiness_range_label: "{range}格以内住宅幸福度",
+        effect_culture_plus: "文化 + {val}",
+        effect_food_plus: "粮食 + {val}",
+        effect_money_plus: "金钱 + {val}",
+        effect_money_minus: "金钱 - {val}",
+        happiness_plus: " + {val}。",
+        happiness_minus: " - {val}。",
+        check_population: "查看人口&幸福度",
+        check_worker: "查看工人分配情况",
+        check_culture: "查看文化产出",
+        check_money: "查看金币产出",
+        check_food: "查看粮食产出",
+        check_swc: "查看土壤含水量",
         intro_label1: "《沙漠小镇》是一款通过防沙治沙绿化环境改善区域生物多样性的同时，提升当地居民经济与幸福度的游戏。游戏采用策略回合制的方式。游戏开始时，地图上只有一个沙漠中的小村庄、少量的人口及自给自足的庄稼。玩家的目标是每回合在地图上进行地块的绿化与城镇的建设工作，在人口、经济、文化、幸福度与生态多样性五个参数中做管理与权衡。游戏根据五个参数达到不同的目标，可以达到不同的城镇发展结局。\n\n进入游戏后的游戏画面如下所示：",
         intro_label2: "操作方式：\n按住屏幕后上下左右拖动可以滚动视窗，查看地图其他位置。\n\n",
         title_close: "关闭",
+        village_committee_name: "村委会",
+        dlg_geotech_needed: "在研究“岩土工程”之后，方可用此功能铲平岩石。",
+        dlg_no_building: "此处没有建筑，请选择一处有建筑物的图块才能进行清除建筑操作。",
+        dlg_government_unclearable: "此建筑为小镇的政府建筑，不能被清除。",
+        dlg_clear_building_not_for_plants: "“清除建筑”按钮不能用于清除植物，清除植物请使用“种植”功能下的“清除植物”按钮。",
+        dlg_clear_rock_before_construction: "在将土地改建为建设用地前，请先清除此地块上的岩石清除。需要研究“岩土工程”。",
+        dlg_clear_plants_before_construction: "在将土地改建为建设用地前，请先清除此地块上的植物。",
+        dlg_already_construction: "当前土地块已经是建设用地了。",
+        dlg_water_to_grass_or_dirt_before_construction: "在将土地改建为建设用地前，请先将水体改建成草地或泥地。",
+        dlg_sand_cannot_construct: "沙土松散，无法进行建设。请先提高土壤含水量。",
+        dlg_clear_rock_before_water: "在将土地改建为水体前，请先清除此地块上的岩石清除。需要研究“岩土工程”。",
+        dlg_already_water: "当前土地块已经是水体了。",
+        dlg_clear_plants_or_building_before_water: "在将土地改建为水体前，请先清除此地块上的植物或建筑。",
+        dlg_restore_green_before_build_water: "在将建设用地改建为水体前，请先“退建还草”，将建设用地改建为草地或泥地。",
+        dlg_only_restore_on_construction_or_water: "只能对建设用地或水体进行复土还绿操作。",
+        dlg_clear_building_before_restore: "在将建设用地复土还绿前，请先清除此地块上的建筑。",
+        dlg_build_on_construction_required: "建筑必须建造在建设用地上，请先将此地块改造为建设用地。",
+        dlg_construction_has_building: "此建筑用地上已有其他建筑，请先清除原有建筑才能建造新建筑。",
+        dlg_no_plant_here: "此处没有植物，请选择一处有植物的图块才能进行清除植物操作。",
+        dlg_clear_plant_not_for_construction: "“清除植物”按钮不能用于清除建筑用地，清除建筑用地请使用“建筑”功能下的“清除建筑”按钮。",
+        dlg_cannot_plant_on_rock: "不能将植物种在岩石上。",
+        dlg_cannot_plant_on_construction: "不能将植物种在建筑用地上。",
+        dlg_cannot_plant_on_water: "不能将植物种在水体上。",
+        dlg_cannot_plant_on_other_plant: "不能将植物种在其他植物上。",
+        dlg_farm_requires_grass_pre_research: "目前，农田必须种在绿地（土壤含水量≥15%）上。研究“旱地培育”技术后，可以将农田种在泥地（土壤含水量≥10%）上。",
+        dlg_farm_requires_dirt_or_grass_post_research: "目前，农田必须种在泥地或草地（土壤含水量≥10%）上。",
+        dlg_thuja_requires_dirt_or_grass: "侧柏必须种在泥地或草地（土壤含水量≥10%）上。",
+        dlg_labour_deficit_no_progress: "小镇当前的可用劳动人力点数为赤字，本回合无法推进。请调节工作地点的人力分配，解决可用劳动人力点数的赤字问题后方可继续下一回合。",
+        dlg_buy_food_cost: "人口数多于小镇自产的食物数，花费{cost}点金币为小镇人口采购足够的粮食。",
+        dlg_sell_food_gain: "小镇自产的食物数多于人口数，卖掉多于的粮食，额外获得{gain}点金币。",
+        dlg_game_over_no_population: "很遗憾，你的城镇已经无人居住，沦为了一座鬼城。在{round}回合的坚持后，你的本轮游戏失败了。",
+        dlg_game_over_bankrupt: "很遗憾，你的城镇由于连续3回合财政赤字，不得不宣布破产。在经过{round}回合的坚持后，你的本轮游戏失败了。",
+        dlg_debt_warning: "目前小镇拥有的金币数为赤字。请在{round}回合内扭亏为盈，否则小镇破产，游戏结束。",
+        dlg_committee_destroyed: "很遗憾，你的{name}受土地沙漠化的影响被损毁了。在经过{round}回合的坚持后，你的本轮游戏失败了。",
+        dlg_plants_dead: "由于恶劣环境的影响，沙地上有{num}颗植物死亡了。",
+        erosion_improve_prefix: "在人工治理的努力下",
+        erosion_up_sand_to_dirt: "，有{n}个沙地块改善为泥土块",
+        erosion_up_dirt_to_grass: "，有{n}个泥土块改善为草地块",
+        erosion_degrade_prefix: "受恶劣环境的影响",
+        erosion_down_dirt_to_sand: "，有{n}个泥土块退化为沙地块",
+        erosion_down_grass_to_dirt: "，有{n}个草地块退化为泥地块",
+        erosion_water_to_dirt: "，有{n}个水体块退化为泥地块",
+        erosion_stone_to_sand: "，有{n}处建设用地退化为沙地块，其上的建筑均被损坏",
+        period_full_stop: "。",
+        soil_moisture_increase_prefix: "每回合土壤含水量 + ",
+        soil_moisture_increase_suffix: "提升土壤含水量上限为",
+        population_label: "存活率：",
+        need_labors: "小镇当前已没有多余的人力点数。请先减少其他工作场所的工作人员以增加可用的人力点数。",
+        residential_intro: "此建筑为住宅建筑，可以吸引{num}名工作人员前来居住。",
+        residential_happiness_gain: "住在这个建筑中的居民可获得{val}点幸福度。",
+        lodger_residents: "居住的人数：{num}",
+        lodger_happiness_here: "此处幸福度：{val}",
+        lodger_sources_header: "幸福度来源：",
+        lodger_house_self: "{val}由住宅本身提供",
+        lodger_source_item: "{val}来自{dist}格外的{name}",
     };
 
     static en: Record<string, string> = {
@@ -76,9 +176,95 @@ export default class LanguageManager extends cc.Component {
         lang_button: "EN",
         title_start: "Start",
         title_intro: "Rules",
+        next_round: "Next Round",
+        start_research: "Start Research",
+        intro_sand: "Sand: Soil moisture below 10%. Plant windbreak/sand-fixation species to increase moisture.",
+        intro_dirt: "Dirt: Soil moisture between 10% and 15%. Plant species to improve moisture. Dirt can be converted to construction land.",
+        intro_grass: "Grass: Soil moisture above 15%. You can plant crops. Grass can be converted to construction land or water.",
+        intro_water: "Water: Can be converted to dirt or grass. If soil moisture falls below 15%, water degrades to dirt.",
+        soil_moisture: "Soil Moisture:",
+        // device_title: "{tile} · {device}",
+        worker_count: "Workers:",
+        per_worker_prefix: "Each worker produces",
+        per_worker_survival: " {val}% survival per worker,",
+        per_turn_swc_up_to: " SWC +{swc}% per turn, up to {max}%.",
+        per_worker_food: " Each worker produces {val} food,",
+        per_worker_culture: " Each worker produces {val} culture,",
+        per_worker_money: " Each worker produces {val} money,",
+        per_worker_cost_money: " Each worker costs {val} money,",
+        lumber_adj_bonus: " +1 money per adjacent spruce/thuja.",
+        quarry_adj_bonus: " +3 money per adjacent rock.",
+        happiness_range_label: "Happiness within {range} tiles",
+        effect_culture_plus: "Culture + {val}",
+        effect_food_plus: "Food + {val}",
+        effect_money_plus: "Money + {val}",
+        effect_money_minus: "Money - {val}",
+        happiness_plus: " + {val}.",
+        happiness_minus: " - {val}.",
+        check_population: "View Population & Happiness",
+        check_worker: "View Worker Allocation",
+        check_culture: "View Culture Output",
+        check_money: "View Money Output",
+        check_food: "View Food Output",
+        check_swc: "View Soil Moisture",
         intro_label1: "Desert Town is a game that boosts regional biodiversity through desertification prevention, control and environmental greening, while simultaneously elevating local residents' economic prosperity and sense of well-being. It features a turn-based strategy gameplay. At the start of the game, the map has nothing but a small village in the desert, a sparse population, and self-sufficient crops. The player’s objective is to carry out land greening and town development on the map each turn, and manage and strike a balance between the five core parameters: population, economy, culture, well-being, and ecological diversity. The game unlocks distinct developmental outcomes for the town based on the different goals accomplished across these five parameters.\n\nThe in-game interface after launching the game is shown as follows:",
         intro_label2: "Controls:\nPress and hold the screen, then drag it up, down, left or right to pan the viewport and view other areas of the map.\n\n",
         title_close: "Close",
+        village_committee_name: "Town Hall",
+        dlg_geotech_needed: "Research \"Geotechnical Engineering\" before you can clear rocks.",
+        dlg_no_building: "No building here. Select a tile with a building to clear.",
+        dlg_government_unclearable: "This government building cannot be cleared.",
+        dlg_clear_building_not_for_plants: "\"Remove Building\" cannot clear plants. Use \"Plant\" → \"Remove Plant\" instead.",
+        dlg_clear_rock_before_construction: "Before converting to construction land, clear rocks first. Requires Geotechnical Engineering.",
+        dlg_clear_plants_before_construction: "Before converting to construction land, clear existing plants first.",
+        dlg_already_construction: "This tile is already construction land.",
+        dlg_water_to_grass_or_dirt_before_construction: "Convert water to grass or dirt before creating construction land.",
+        dlg_sand_cannot_construct: "Sand is too loose for construction. Increase soil moisture first.",
+        dlg_clear_rock_before_water: "Before creating water, clear rocks first. Requires Geotechnical Engineering.",
+        dlg_already_water: "This tile is already water.",
+        dlg_clear_plants_or_building_before_water: "Clear plants or buildings before creating water.",
+        dlg_restore_green_before_build_water: "Before creating water on construction land, restore it back to grass or dirt.",
+        dlg_only_restore_on_construction_or_water: "You can only restore construction land or water.",
+        dlg_clear_building_before_restore: "Clear buildings before restoring construction land.",
+        dlg_build_on_construction_required: "Buildings must be built on construction land. Convert this tile first.",
+        dlg_construction_has_building: "A building already exists here. Clear it before building a new one.",
+        dlg_no_plant_here: "No plant here. Select a tile with plants to clear.",
+        dlg_clear_plant_not_for_construction: "\"Remove Plant\" cannot clear construction land. Use \"Build\" → \"Remove Building\".",
+        dlg_cannot_plant_on_rock: "Cannot plant on rock.",
+        dlg_cannot_plant_on_construction: "Cannot plant on construction land.",
+        dlg_cannot_plant_on_water: "Cannot plant on water.",
+        dlg_cannot_plant_on_other_plant: "Cannot plant on another plant.",
+        dlg_farm_requires_grass_pre_research: "Farms must be planted on grass (soil moisture ≥15%). After \"Dryland Cultivation\", farms can be planted on dirt (≥10%).",
+        dlg_farm_requires_dirt_or_grass_post_research: "Farms must be planted on dirt or grass (soil moisture ≥10%).",
+        dlg_thuja_requires_dirt_or_grass: "Thuja must be planted on dirt or grass (soil moisture ≥10%).",
+        dlg_labour_deficit_no_progress: "Labour points are in deficit; this turn cannot proceed. Reallocate workers to resolve the deficit.",
+        dlg_buy_food_cost: "Population exceeds self-produced food; spent {cost} coins to purchase enough food.",
+        dlg_sell_food_gain: "Self-produced food exceeds population; sold surplus to gain {gain} coins.",
+        dlg_game_over_no_population: "Unfortunately, your town is now uninhabited and has become a ghost town. After {round} turns, Game Over.",
+        dlg_game_over_bankrupt: "Unfortunately, after 3 consecutive deficit turns, the town declared bankruptcy. After {round} turns, Game Over.",
+        dlg_debt_warning: "The town is in deficit. Turn profitable within {round} turns or the town goes bankrupt and the game ends.",
+        dlg_committee_destroyed: "Unfortunately, your {name} was destroyed by desertification. After {round} turns, Game Over.",
+        dlg_plants_dead: "Due to harsh conditions, {num} plants died in the desert.",
+        erosion_improve_prefix: "With restoration efforts",
+        erosion_up_sand_to_dirt: ", {n} sand tiles improved to dirt",
+        erosion_up_dirt_to_grass: ", {n} dirt tiles improved to grass",
+        erosion_degrade_prefix: "Affected by harsh environment",
+        erosion_down_dirt_to_sand: ", {n} dirt tiles degraded to sand",
+        erosion_down_grass_to_dirt: ", {n} grass tiles degraded to dirt",
+        erosion_water_to_dirt: ", {n} water tiles degraded to dirt",
+        erosion_stone_to_sand: ", {n} construction tiles degraded to sand; buildings on them were damaged",
+        period_full_stop: ".",
+        soil_moisture_increase_prefix: "Per turn Soil Moisture + ",
+        soil_moisture_increase_suffix: "Max Soil Moisture Raised to ",
+        population_label: "Survival Rate: ",
+        need_labors: "There are no extra manpower points available in the town at present. Please reduce the staff at other workplaces first to increase your available manpower points.",
+        residential_intro: "Residential building, attracts {num} residents.",
+        residential_happiness_gain: "Residents gain +{val} happiness.",
+        lodger_residents: "Residents: {num}",
+        lodger_happiness_here: "Happiness here: {val}",
+        lodger_sources_header: "Sources of happiness:",
+        lodger_house_self: "{val} from the house itself",
+        lodger_source_item: "{val} from {name} at distance {dist}",
     };
 
     static plantIntroZh = [
@@ -164,6 +350,29 @@ export default class LanguageManager extends cc.Component {
         "High-tech Park: Each worker produces 40 coins.",
         "Carbon Capture Workshop: Each worker produces 60 coins.",
     ];
+
+    static plantNameZh = [
+        "清除植物","梭梭树","沙棘","花棒","沙地云杉","侧柏","农田","高级农田"
+    ];
+    static plantNameEn = [
+        "Remove Plant","Saxaul","Sea Buckthorn","Cactus Column","Spruce","Thuja","Farm","Advanced Farm"
+    ];
+    static buildNameZh = [
+        "清除建筑","建设用地","建设水体","复土还绿",
+        "棚屋","平房小院","洋房别墅","公寓楼","高层住宅","垂直森林",
+        "商店街","公园","快餐店","大礼堂","运动场","生态度假区",
+        "学校","活动室","图书馆","研究所","文化产业园",
+        "木材厂","采石场","风力磨坊","手工加工厂","重工厂","高新产业园","固碳车间"
+    ];
+    static buildNameEn = [
+        "Remove Building","Construction Land","Build Water","Restore Green",
+        "Shed","Courtyard House","Villa","Apartment","High-rise","Vertical Forest",
+        "Shopping Street","Park","Fast Food","Auditorium","Stadium","Eco Resort",
+        "School","Activity Room","Library","Research Institute","Culture Industry Park",
+        "Lumber Mill","Quarry","Windmill","Handicraft Factory","Heavy Industry","High-tech Park","Carbon Capture Workshop"
+    ];
+    static tileNameZh = ["沙地","泥地","草地","水体","建设用地","沙坡","泥坡","草坡"];
+    static tileNameEn = ["Sand","Dirt","Grass","Water","Construction","Sand Hill","Dirt Hill","Grass Hill"];
 
     static cultureNameZh = [
         "三农改革","旱地培育","农业代加工","技术教育","美丽乡村","新农村建设","农业机械化","农民职业化","文化建设","便民生活圈","城镇化","岩土工程","工业自动化","普及\n公共服务","精神文明\n建设","城市化","清洁能源","产业升级","科技创新","全民健身","生态文明\n建设","生物科技","碳中和贸易","全民科普","绿色服务业",

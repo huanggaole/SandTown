@@ -10,6 +10,7 @@ import DialogScript from "./DialogScript";
 import MapScript from "./MapScript";
 import PlantScript from "./PlantScript";
 import TileScript from "./TileScript";
+import LanguageManager from "./LanguageManager";
 
 export enum TileType {
     Sand,
@@ -126,13 +127,13 @@ export default class DataUtil {
 
     static nextLevel() {
         if (this.labourPoints < 0) {
-            DialogScript.ShowDialog("小镇当前的可用劳动人力点数为赤字，本回合无法推进。请调节工作地点的人力分配，解决可用劳动人力点数的赤字问题后方可继续下一回合。");
+            DialogScript.ShowDialog(LanguageManager.t("dlg_labour_deficit_no_progress"));
             return;
         }
         if (this.food < this.population) {
-            DialogScript.ShowDialog("人口数多于小镇自产的食物数，花费" + (this.population - this.food) + "点金币为小镇人口采购足够的粮食。");
+            DialogScript.ShowDialog(LanguageManager.t("dlg_buy_food_cost", { cost: (this.population - this.food) }));
         } else if (this.food > this.population) {
-            DialogScript.ShowDialog("小镇自产的食物数多于人口数，卖掉多于的粮食，额外获得" + (this.food - this.population) + "点金币。");
+            DialogScript.ShowDialog(LanguageManager.t("dlg_sell_food_gain", { gain: (this.food - this.population) }));
         }
         this.culture += this.delCulture;
         this.money += this.delMoney;
@@ -158,7 +159,7 @@ export default class DataUtil {
         }
         this.laborNum = this.population;
         if (this.laborNum == 0) {
-            DialogScript.ShowDialog("很遗憾，你的城镇已经无人居住，沦为了一座鬼城。在" + this.levelNum + "回合的坚持后，你的本轮游戏失败了。");
+            DialogScript.ShowDialog(LanguageManager.t("dlg_game_over_no_population", { round: this.levelNum }));
         }
 
         if (this.money < 0 && this.debtLeft > 0) {
@@ -169,10 +170,10 @@ export default class DataUtil {
             this.debtLeft = -1;
         }
         if (this.money < 0 && this.debtLeft == 0) {
-            DialogScript.ShowDialog("很遗憾，你的城镇由于连续3回合财政赤字，不得不宣布破产。在经过" + this.levelNum + "回合的坚持后，你的本轮游戏失败了。");
+            DialogScript.ShowDialog(LanguageManager.t("dlg_game_over_bankrupt", { round: this.levelNum }));
         }
         if (this.debtLeft > 0) {
-            DialogScript.ShowDialog("目前小镇拥有的金币数为赤字。请在" + this.debtLeft + "回合内扭亏为盈，否则小镇破产，游戏结束。");
+            DialogScript.ShowDialog(LanguageManager.t("dlg_debt_warning", { round: this.debtLeft }));
         }
 
         DetailPanelScript.getInstance().hideDetail();
@@ -372,7 +373,7 @@ export default class DataUtil {
                 } else if (tile.tileType == TileType.Stone && newSWC[j][i] < 10) {
                     stoneToSand++;
                     if (tile.deviceType == DeviceType.VillageCommittee) {
-                        DialogScript.ShowDialog("很遗憾，你的" + DataUtil.deviceAttr[DeviceType.VillageCommittee].name + "受土地沙漠化的影响被损毁了。在经过" + this.levelNum + "回合的坚持后，你的本轮游戏失败了。");
+                        DialogScript.ShowDialog(LanguageManager.t("dlg_committee_destroyed", { name: LanguageManager.t("village_committee_name"), round: this.levelNum }));
                     }
                     tile.tileType = TileType.Sand;
                     tile.deviceType = -1;
@@ -388,30 +389,30 @@ export default class DataUtil {
         if (upToDirt > 0 || upToGrass > 0 || downToDirt > 0 || downToSand > 0 || waterToDirt > 0 || stoneToSand > 0) {
             let res = "";
             if (upToDirt > 0 || upToGrass > 0) {
-                res += "在人工治理的努力下";
+                res += LanguageManager.t("erosion_improve_prefix");
                 if (upToDirt > 0) {
-                    res += "，有" + upToDirt + "个沙地块改善为泥土块";
+                    res += LanguageManager.t("erosion_up_sand_to_dirt", { n: upToDirt });
                 }
                 if (upToGrass > 0) {
-                    res += "，有" + upToGrass + "个泥土块改善为草地块";
+                    res += LanguageManager.t("erosion_up_dirt_to_grass", { n: upToGrass });
                 }
-                res += "。\n";
+                res += LanguageManager.t("period_full_stop") + "\n";
             }
             if (downToSand > 0 || downToDirt > 0 || waterToDirt > 0 || stoneToSand > 0) {
-                res += "受恶劣环境的影响";
+                res += LanguageManager.t("erosion_degrade_prefix");
                 if (downToSand > 0) {
-                    res += "，有" + downToSand + "个泥土块退化为沙地块";
+                    res += LanguageManager.t("erosion_down_dirt_to_sand", { n: downToSand });
                 }
                 if (downToDirt > 0) {
-                    res += "，有" + downToDirt + "个草地块退化为泥地块";
+                    res += LanguageManager.t("erosion_down_grass_to_dirt", { n: downToDirt });
                 }
                 if (waterToDirt > 0) {
-                    res += "，有" + waterToDirt + "个水体块退化为泥地块";
+                    res += LanguageManager.t("erosion_water_to_dirt", { n: waterToDirt });
                 }
                 if (stoneToSand > 0) {
-                    res += "，有" + stoneToSand + "处建设用地退化为沙地块，其上的建筑均被损坏";
+                    res += LanguageManager.t("erosion_stone_to_sand", { n: stoneToSand });
                 }
-                res += "。";
+                res += LanguageManager.t("period_full_stop");
             }
             DialogScript.ShowDialog(res);
         }
