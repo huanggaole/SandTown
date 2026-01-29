@@ -4,6 +4,7 @@ import TileScript from "./TileScript";
 import MenuScropt from "./MenuScript";
 import MapScript from "./MapScript";
 import ResearchScript from "./ResearchScript";
+import LanguageManager from "./LanguageManager";
 
 const {ccclass, property} = cc._decorator;
 
@@ -25,6 +26,11 @@ export default class BuildScript extends cc.Component {
     static selectedIndex = 0;
     static firstBuildingIndex = 12;
     start(): void {
+        LanguageManager.onChange(()=>{
+            if(this.infoLbl){
+                this.infoLbl.string = LanguageManager.getBuildIntro(BuildScript.selectedIndex);
+            }
+        });
         for(let i = 0; i < this.buildBtns.length; i++){
             this.buildBtns[i].getComponent(cc.Button).node.getChildByName("Background").getChildByName("buildingCost").getComponent(cc.Label).string = "" + BuildScript.moneyCost[i];
             this.buildBtns[i].node.on("click",()=>{
@@ -38,7 +44,7 @@ export default class BuildScript extends cc.Component {
                 this.buildBtns[index].pressedSprite = this.pressedSF;
                 this.buildBtns[index].hoverSprite = this.pressedSF;
                 BuildScript.selectedIndex = index;
-                this.infoLbl.string = BuildScript.introTxt[index];
+                this.infoLbl.string = LanguageManager.getBuildIntro(index);
             },this);
         }
         BuildScript.BuildBtns = this.buildBtns;

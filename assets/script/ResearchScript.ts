@@ -4,6 +4,7 @@ import TileScript from "./TileScript";
 import MenuScropt from "./MenuScript";
 import MapScript from "./MapScript";
 import PlantScript from "./PlantScript";
+import LanguageManager from "./LanguageManager";
 
 const {ccclass, property} = cc._decorator;
 
@@ -51,6 +52,14 @@ export default class ResearchScript extends cc.Component {
         ResearchScript.costShortSF = this.costShortSF;
         ResearchScript.finishedSF = this.finishedSF;
         ResearchScript.infoLbl = this.infoLbl;
+        LanguageManager.onChange(()=>{
+            ResearchScript.refreshBtns();
+            if(ResearchScript.selectedIndex >= 0){
+                ResearchScript.showCultureInfo(ResearchScript.selectedIndex);
+            } else {
+                ResearchScript.infoLbl.string = "";
+            }
+        });
         for(let i = 0; i < 25; i++){
             const btn = cc.instantiate(this.culturePrefab);
             btn.getComponent(cc.Button).node.on("click",()=>{
@@ -138,20 +147,22 @@ export default class ResearchScript extends cc.Component {
                     btn.getChildByName("Background").getChildByName("cultureCost").getComponent(cc.Label).node.color = new cc.Color(0,0,0);
                 }
             }
-            btn.getChildByName("Background").getChildByName("cultureName").getComponent(cc.Label).string = ResearchScript.cultureName[i];
+            btn.getChildByName("Background").getChildByName("cultureName").getComponent(cc.Label).string = LanguageManager.getCultureName(i);
             btn.getChildByName("Background").getChildByName("cultureCost").getComponent(cc.Label).string = "" + ResearchScript.cultureCost[i];
         }
     }
 
     static showCultureInfo(cIndex:number){
-        this.infoLbl.string = this.cultureName[cIndex].replace("\n","") + ":\n";
+        const nm = LanguageManager.getCultureName(cIndex).replace("\n","");
+        this.infoLbl.string = nm + ":\n";
         if(this.culturePre[cIndex] >= 0){
-            this.infoLbl.string += "(完成\"" + this.cultureName[this.culturePre[cIndex]].replace("\n","") + "\"以解锁此研究。)\n";
+            const preNm = LanguageManager.getCultureName(this.culturePre[cIndex]).replace("\n","");
+            this.infoLbl.string += LanguageManager.t("research_unlock_pre", { name: preNm }) + "\n";
         }
-        this.infoLbl.string += "\n" + this.introTxt[cIndex] + "\n";
-        this.infoLbl.string += "\n需要花费" + this.cultureCost[cIndex] + "点文化点数。\n";
+        this.infoLbl.string += "\n" + LanguageManager.getCultureIntro(cIndex) + "\n";
+        this.infoLbl.string += "\n" + LanguageManager.t("research_need_cost", { cost: this.cultureCost[cIndex] }) + "\n";
         if(this.cultureStatus[cIndex] == 1){
-            this.infoLbl.string += "\n(已研究)\n"
+            this.infoLbl.string += "\n" + LanguageManager.t("research_already") + "\n";
         }
     }
 

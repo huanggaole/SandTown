@@ -4,6 +4,7 @@ import TileScript from "./TileScript";
 import MenuScropt from "./MenuScript";
 import MapScript from "./MapScript";
 import ResearchScript from "./ResearchScript";
+import LanguageManager from "./LanguageManager";
 
 const {ccclass, property} = cc._decorator;
 
@@ -23,7 +24,14 @@ export default class PlantScript extends cc.Component {
 
     static selectedIndex = 0;
     static PlantBtns;
+    static InfoLbl: cc.Label;
     start(): void {
+        PlantScript.InfoLbl = this.infoLbl;
+        LanguageManager.onChange(()=>{
+            if(PlantScript.InfoLbl){
+                PlantScript.InfoLbl.string = LanguageManager.getPlantIntro(PlantScript.selectedIndex);
+            }
+        });
         for(let i = 0; i < this.plantBtns.length; i++){
             this.plantBtns[i].node.on("click",()=>{
                 const index = i;
@@ -36,7 +44,7 @@ export default class PlantScript extends cc.Component {
                 this.plantBtns[index].pressedSprite = this.pressedSF;
                 this.plantBtns[index].hoverSprite = this.pressedSF;
                 PlantScript.selectedIndex = index;
-                this.infoLbl.string = PlantScript.introTxt[index];
+                this.infoLbl.string = LanguageManager.getPlantIntro(index);
             },this);
         }
         PlantScript.PlantBtns = this.plantBtns;

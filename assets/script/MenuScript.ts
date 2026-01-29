@@ -8,6 +8,7 @@
 import DataUtil from "./DataUtil";
 import DetailPanelScript from "./DetailPanelScript";
 import MapScript, { MapStatus } from "./MapScript";
+import LanguageManager from "./LanguageManager";
 
 const {ccclass, property} = cc._decorator;
 
@@ -146,6 +147,9 @@ export default class MenuScript extends cc.Component {
             DataUtil.nextLevel();
             this.refreshMenu();
         },this);
+        LanguageManager.onChange(()=>{
+            this.refreshMenu();
+        });
     }
 
     updateButtons(){
@@ -216,7 +220,7 @@ export default class MenuScript extends cc.Component {
     // 更新 menu lbl
     refreshMenu(){
         DataUtil.countParams();
-        this.roundLbl.string = "第 " + DataUtil.levelNum + " 回合";
+        this.roundLbl.string = LanguageManager.t("round_label",{n: DataUtil.levelNum});
         this.populationLbl.string = (DataUtil.laborNum - DataUtil.totalWorkerNum) + "/" + DataUtil.population;
         this.happinessLbl.string = "" + DataUtil.happiness;
         this.cultureLbl.string = "" + DataUtil.culture;

@@ -7,7 +7,7 @@
 
 const {ccclass, property} = cc._decorator;
 
-@ccclass
+    @ccclass
 export default class DialogScript extends cc.Component {
     @property(cc.Node)
     pNode: cc.Node = null;
@@ -28,7 +28,7 @@ export default class DialogScript extends cc.Component {
         DialogScript.PNode = this.pNode;
         DialogScript.InfoLbl = this.infoLabel;
         this.OKBtn.node.on("click",()=>{
-            if(DialogScript.InfoLbl.string.includes("你的本轮游戏失败了")){
+            if(DialogScript.InfoLbl.string.includes("你的本轮游戏失败了") || DialogScript.InfoLbl.string.includes("Game Over")){
                 location.reload();
             }
             DialogScript.infoList.shift();
