@@ -8,6 +8,20 @@ import LanguageManager from "./LanguageManager";
 
 const {ccclass, property} = cc._decorator;
 
+/**
+ * cultureStatus 的初始值模板。
+ * 该数组会被研究进度就地改写（见 refreshBtns / researchBtn 回调），
+ * 因此保留一份模板，供"重开一局 / 进入战役关卡"时还原。
+ * 取值：-1 未解锁，0 可研究，1 已研究。
+ */
+const CULTURE_STATUS_INIT = [
+    0, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1
+];
+
 @ccclass
 export default class ResearchScript extends cc.Component {
     @property(cc.Prefab)
@@ -45,14 +59,32 @@ export default class ResearchScript extends cc.Component {
     static finishedSF;
     static infoLbl;
     static selectedIndex = -1;
+
+    private unsubscribeLanguage: () => void = null;
+
+    onDestroy(): void {
+        if (this.unsubscribeLanguage) {
+            this.unsubscribeLanguage();
+            this.unsubscribeLanguage = null;
+        }
+    }
+
+    /** 还原被研究进度改写的静态状态。start() 开头会调用，场景切换时由 MapScript.onLoad 兜底。 */
+    static resetStatics(): void {
+        ResearchScript.cultureStatus = CULTURE_STATUS_INIT.slice();
+        ResearchScript.btns = [];
+        ResearchScript.selectedIndex = -1;
+    }
+
     start(): void {
+        ResearchScript.resetStatics();
         ResearchScript.normalSF = this.normalSF;
         ResearchScript.pressedSF = this.pressedSF;
         ResearchScript.disableSF = this.disableSF;
         ResearchScript.costShortSF = this.costShortSF;
         ResearchScript.finishedSF = this.finishedSF;
         ResearchScript.infoLbl = this.infoLbl;
-        LanguageManager.onChange(()=>{
+        this.unsubscribeLanguage = LanguageManager.onChange(()=>{
             ResearchScript.refreshBtns();
             if(ResearchScript.selectedIndex >= 0){
                 ResearchScript.showCultureInfo(ResearchScript.selectedIndex);
@@ -212,33 +244,7 @@ export default class ResearchScript extends cc.Component {
         DataUtil.countParams();
     }
 
-    static cultureStatus = [
-        0,
-        -1,
-        -1,
-        -1,
-        -1,
-        -1,
-        -1,
-        -1,
-        -1,
-        -1,
-        -1,
-        -1,
-        -1,
-        -1,
-        -1,
-        -1,
-        -1,
-        -1,
-        -1,
-        -1,
-        -1,
-        -1,
-        -1,
-        -1,
-        -1
-    ];
+    static cultureStatus = CULTURE_STATUS_INIT.slice();
 
     static culturePre = [
         -1,
@@ -268,34 +274,6 @@ export default class ResearchScript extends cc.Component {
         20
     ];
 
-    static cultureName = [
-        "三农改革",
-        "旱地培育",
-        "农业代加工",
-        "技术教育",
-        "美丽乡村",
-        "新农村建设",
-        "农业机械化",
-        "农民职业化",
-        "文化建设",
-        "便民生活圈",
-        "城镇化",
-        "岩土工程",
-        "工业自动化",
-        "普及\n公共服务",
-        "精神文明\n建设",
-        "城市化",
-        "清洁能源",
-        "产业升级",
-        "科技创新",
-        "全民健身",
-        "生态文明\n建设",
-        "生物科技",
-        "碳中和贸易",
-        "全民科普",
-        "绿色服务业",
-    ];
-
     static cultureCost = [
         10,
         200,
@@ -323,32 +301,4 @@ export default class ResearchScript extends cc.Component {
         6000,
         7000,
     ];
-
-    static introTxt=[
-        "目标是农民增收、农业发展、农村稳定。完成此研究将解锁建筑“平房小院”，并将“村委会”的最大工作人员数提升至4人，幸福度的影响范围提升至3单元格。",
-        "旱地培育：研究此技术后，农田与高级农田可以建设在土壤含水量≥10%的泥土块上。",
-        "农业代加工：研究此技术后，将解锁建筑“风力磨坊”。",
-        "技术教育：研究此技术后，将解锁建筑“学校”。",
-        "美丽乡村：研究此技术后，将解锁建筑“公园”。",
-        "建设改善农民衣食住行，建设基础设施以及农民的生活保障机制。完成此研究将解锁建筑\"洋房别墅\"，并将\"村委会\"的最大工作人员数提升至6人，幸福度的影响范围提升至4单元格。",
-        "农业机械化：研究此技术后，将解锁种植“高级农田”。",
-        "农民职业化：研究此技术后，将解锁建筑“手工加工厂”。",
-        "文化建设：研究此技术后，将解锁建筑“活动室”。",
-        "便民生活圈：研究此技术后，将解锁建筑“快餐店”。",
-        "将农村人口转化为城镇人口的过程。完成此研究将解锁建筑\"公寓\"，\"村委会\"改名为“镇政府，最大工作人员数提升至8人，幸福度的影响范围提升至5单元格。",
-        "岩土工程：研究此技术后，可以移除岩石，可以解锁建筑“修建水体”。",
-        "工业自动化：研究此技术后，将解锁建筑“重工厂”。",
-        "普及公共服务：研究此技术后，将解锁建筑“图书馆”。",
-        "精神文明建设：研究此技术后，将解锁建筑“大礼堂”。",
-        "进一步完成现代城市转型，完成此研究将解锁建筑\"高层住宅\"，并将\"镇政府\"的最大工作人员数提升至9人，幸福度的影响范围提升至6单元格。",
-        "清洁能源：研究此技术后，所有工业建筑对环境产生的幸福度的降低影响将变为原来的1/5。“风力磨坊”可以发电，每位工人产出的金币数量变为30。",
-        "产业升级：研究此技术后，将解锁建筑“高新产业园”。",
-        "科技创新：研究此技术后，将解锁建筑“研究所”。",
-        "全民健身：研究此技术后，将解锁建筑“体育馆”。",
-        "打造可持续发展的、面向未来的城市。完成此研究将解锁建筑\"高层住宅\"，并将\"镇政府\"的幸福度的影响范围提升至9单元格。",
-        "生物科技: 所有防风固沙、水土保持植物在没有工人时的存活率提升至100%，所有植物的食物产量翻倍。",
-        "碳中和贸易：研究此技术后，将解锁建筑“固碳车间”。",
-        "全民科普：研究此技术后，将解锁建筑“文化产业园”。",
-        "绿色服务业：研究此技术后，将解锁建筑“生态度假区”。"
-    ]
 }

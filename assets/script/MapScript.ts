@@ -71,6 +71,14 @@ export default class MapScript extends cc.Component {
     static tileSprites;
     static iconPrefabs;
     static camera:cc.Camera;
+
+    // onLoad 一定早于所有组件的 start()，在这里清空静态游戏状态，
+    // 可以保证 tileArray 不会因为场景重复加载而翻倍、研究进度不会串局。
+    onLoad(){
+        DataUtil.reset();
+        ResearchScript.resetStatics();
+    }
+
     start () {
         MapScript.camera = this.camera;
         MapScript.tileSprites = this.tileSprites;
@@ -116,12 +124,12 @@ export default class MapScript extends cc.Component {
                 if(i > 0){
                     tile.leftTile = DataUtil.tileArray[j][i - 1];
                 }
-                if(i < this.mapWidth - 2){
+                if(i < this.mapWidth - 1){
                     tile.rightTile = DataUtil.tileArray[j][i + 1];
                 }
                 if(j % 2 == 0 && j > 0){
                     tile.leftDownTile = DataUtil.tileArray[j - 1][i];
-                    if(i < this.mapWidth - 2){
+                    if(i < this.mapWidth - 1){
                         tile.rightDownTile =  DataUtil.tileArray[j - 1][i + 1];
                     }
                 }else if(j % 2 == 1){
@@ -130,12 +138,12 @@ export default class MapScript extends cc.Component {
                     }
                     tile.rightDownTile =  DataUtil.tileArray[j - 1][i];
                 }
-                if(j % 2 == 0 && j < this.mapHeight - 2){
+                if(j % 2 == 0 && j < this.mapHeight - 1){
                     tile.leftUpTile = DataUtil.tileArray[j + 1][i];
-                    if(i < this.mapWidth - 2){
+                    if(i < this.mapWidth - 1){
                         tile.rightUpTile = DataUtil.tileArray[j + 1][i + 1];
                     }
-                }else if(j % 2 == 1 && j < this.mapHeight - 2){
+                }else if(j % 2 == 1 && j < this.mapHeight - 1){
                     if(i > 0){
                         tile.leftUpTile = DataUtil.tileArray[j + 1][i - 1];
                     }

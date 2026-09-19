@@ -28,6 +28,8 @@ export default class DialogScript extends cc.Component {
     start () {
         DialogScript.PNode = this.pNode;
         DialogScript.InfoLbl = this.infoLabel;
+        // 弹窗队列属于单局状态：场景重新加载时必须清空，否则上一局的残留提示会串场
+        DialogScript.infoList = [];
         this.OKBtn.node.on("click",()=>{
             if(DialogScript.InfoLbl.string.includes("你的本轮游戏失败了") || DialogScript.InfoLbl.string.includes("Game Over")){
                 location.reload();

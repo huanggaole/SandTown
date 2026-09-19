@@ -123,7 +123,14 @@ export default class DataUtil {
 
     static labourPoints = 0;
 
-    static debtLeft = -1;
+    /**
+     * 连续财政赤字的回合数（每次回合结算后统计）。0 表示当前未处于赤字状态。
+     * 一旦某次结算后金币 >= 0，立即清零。
+     */
+    static deficitTurns = 0;
+
+    /** 连续赤字达到此回合数即宣告破产。与文案"连续 3 回合财政赤字"一致。 */
+    static readonly BANKRUPT_TURNS = 3;
 
     static nextLevel() {
         if (this.labourPoints < 0) {
@@ -162,18 +169,15 @@ export default class DataUtil {
             DialogScript.ShowDialog(LanguageManager.t("dlg_game_over_no_population", { round: this.levelNum }));
         }
 
-        if (this.money < 0 && this.debtLeft > 0) {
-            this.debtLeft--;
-        } else if (this.money < 0 && this.debtLeft < 0) {
-            this.debtLeft = 3;
-        } else if (this.money >= 0) {
-            this.debtLeft = -1;
-        }
-        if (this.money < 0 && this.debtLeft == 0) {
+        // 赤字结算计数：结算后金币为负则 +1，扭亏为盈立即清零。
+        // 累计到 BANKRUPT_TURNS（3）次连续赤字即破产，与文案"连续 3 回合财政赤字"一致。
+        // 旧实现用 "3 起倒数到 0" 的写法，实际要到第 4 个赤字回合才破产，比文案多给 1 回合。
+        this.deficitTurns = (this.money < 0) ? this.deficitTurns + 1 : 0;
+        if (this.deficitTurns >= DataUtil.BANKRUPT_TURNS) {
             DialogScript.ShowDialog(LanguageManager.t("dlg_game_over_bankrupt", { round: this.levelNum }));
-        }
-        if (this.debtLeft > 0) {
-            DialogScript.ShowDialog(LanguageManager.t("dlg_debt_warning", { round: this.debtLeft }));
+        } else if (this.deficitTurns > 0) {
+            // 提示中的回合数是"还能撑几个回合"：第 1 次赤字 → 2，第 2 次 → 1
+            DialogScript.ShowDialog(LanguageManager.t("dlg_debt_warning", { round: DataUtil.BANKRUPT_TURNS - this.deficitTurns }));
         }
 
         DetailPanelScript.getInstance().hideDetail();
@@ -199,53 +203,28 @@ export default class DataUtil {
                     this.delMoney += device.moneyEffect * this.tileArray[j][i].workerNum;
                     this.food += device.foodEffect * this.tileArray[j][i].workerNum;
                     this.tileArray[j][i].happinessSource = [];
-                    this.happiness = 0;
                     if (device.happinessEffectRange > 0) {
                         happinessPlace.push({ r: this.tileArray[j][i].r, s: this.tileArray[j][i].s, q: this.tileArray[j][i].q, range: device.happinessEffectRange, value: (device.happinessEffect * this.tileArray[j][i].workerNum), name: device.name });
                     }
-                    // 判断是否是伐木场
+                    // 判断是否是伐木场：每毗邻一棵云杉/侧柏 +1 金币
                     if (deviceType == DeviceType.Industry1) {
                         let treenum = 0;
-                        if (this.tileArray[j][i].leftUpTile.deviceType == DeviceType.CeBo || this.tileArray[j][i].leftUpTile.deviceType == DeviceType.YunShan) {
-                            treenum++;
-                        }
-                        if (this.tileArray[j][i].leftTile.deviceType == DeviceType.CeBo || this.tileArray[j][i].leftTile.deviceType == DeviceType.YunShan) {
-                            treenum++;
-                        }
-                        if (this.tileArray[j][i].leftDownTile.deviceType == DeviceType.CeBo || this.tileArray[j][i].leftDownTile.deviceType == DeviceType.YunShan) {
-                            treenum++;
-                        }
-                        if (this.tileArray[j][i].rightUpTile.deviceType == DeviceType.CeBo || this.tileArray[j][i].rightUpTile.deviceType == DeviceType.YunShan) {
-                            treenum++;
-                        }
-                        if (this.tileArray[j][i].rightTile.deviceType == DeviceType.CeBo || this.tileArray[j][i].rightTile.deviceType == DeviceType.YunShan) {
-                            treenum++;
-                        }
-                        if (this.tileArray[j][i].rightDownTile.deviceType == DeviceType.CeBo || this.tileArray[j][i].rightDownTile.deviceType == DeviceType.YunShan) {
-                            treenum++;
+                        const adj = this.tileArray[j][i].getAdjacentTiles();
+                        for (let k = 0; k < adj.length; k++) {
+                            if (adj[k] && (adj[k].deviceType == DeviceType.CeBo || adj[k].deviceType == DeviceType.YunShan)) {
+                                treenum++;
+                            }
                         }
                         this.delMoney += treenum;
                     }
-                    // 判断是否是采石场
+                    // 判断是否是采石场：每毗邻一格岩石 +3 金币
                     if (deviceType == DeviceType.Industry2) {
                         let stonenum = 0;
-                        if (this.tileArray[j][i].leftUpTile.deviceType == DeviceType.Rock) {
-                            stonenum++;
-                        }
-                        if (this.tileArray[j][i].leftTile.deviceType == DeviceType.Rock) {
-                            stonenum++;
-                        }
-                        if (this.tileArray[j][i].leftDownTile.deviceType == DeviceType.Rock) {
-                            stonenum++;
-                        }
-                        if (this.tileArray[j][i].rightUpTile.deviceType == DeviceType.Rock) {
-                            stonenum++;
-                        }
-                        if (this.tileArray[j][i].rightTile.deviceType == DeviceType.Rock) {
-                            stonenum++;
-                        }
-                        if (this.tileArray[j][i].rightDownTile.deviceType == DeviceType.Rock) {
-                            stonenum++;
+                        const adj = this.tileArray[j][i].getAdjacentTiles();
+                        for (let k = 0; k < adj.length; k++) {
+                            if (adj[k] && adj[k].deviceType == DeviceType.Rock) {
+                                stonenum++;
+                            }
                         }
                         this.delMoney += (stonenum * 3);
                     }
@@ -418,7 +397,40 @@ export default class DataUtil {
         }
     }
 
-    static deviceAttr = [
+    /**
+     * 把全部静态游戏状态恢复为初始值。
+     * 进入游戏场景 / 重开一局 / 结算后"再来一局"之前必须调用，
+     * 否则 DataUtil.tileArray 会随每次场景加载重复增长（32×32 再 push 一遍）。
+     */
+    static reset() {
+        this.tileArray = [];
+        this.levelNum = 1;
+        this.laborNum = 10;
+        this.totalWorkerNum = 0;
+        this.population = 0;
+        this.happiness = 0;
+        this.culture = 0;
+        this.delCulture = 0;
+        this.money = 100;
+        this.delMoney = 0;
+        this.food = 0;
+        this.labourPoints = 0;
+        this.deficitTurns = 0;
+        // deviceAttr 会被 ResearchScript.dealCulture() 就地改写，必须整体重建
+        this.deviceAttr = createDeviceAttr();
+    }
+
+    static deviceAttr: Array<DeviceFunc> = createDeviceAttr();
+}
+
+/**
+ * 建筑 / 植物属性表的构造工厂。
+ * 索引与 DeviceType 枚举一一对应。
+ * 之所以做成工厂而不是字面量常量：运行时的研究推进会就地修改这些数值
+ * （见 ResearchScript.dealCulture），Cocos 的热重载与场景切换也需要能重建一份干净的表。
+ */
+function createDeviceAttr(): Array<DeviceFunc> {
+    return [
         new DeviceFunc("空地", 0, 0, 0, 0, 0, 0, 0, 0),
         new DeviceFunc("梭梭树", 1, 0, 0, 0, 0, 0, 0, 0, new PlantFunc(45, 45, 3, 16, "")),
         new DeviceFunc("沙棘", 2, 0, 0, 0, 0, 0, 0, 1, new PlantFunc(33, 33, 1, 15, "")),
@@ -452,7 +464,7 @@ export default class DataUtil {
         new DeviceFunc("采石场", 2, 0, 0, -5, 3, 0, 5, 0),
         new DeviceFunc("风力磨坊", 4, 0, 0, -5, 3, 0, 10, 0),
         new DeviceFunc("手工加工厂", 6, 0, 0, -10, 3, 0, 20, 0),
-        new DeviceFunc("重工长", 9, 0, 0, -15, 3, 0, 40, 0),
+        new DeviceFunc("重工厂", 9, 0, 0, -15, 3, 0, 40, 0),
         new DeviceFunc("高新产业园", 9, 0, 0, 0, 0, 0, 40, 0),
         new DeviceFunc("固碳车间", 9, 0, 0, 0, 0, 0, 60, 0),
     ];

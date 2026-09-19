@@ -281,45 +281,21 @@ export default class DetailPanelScript extends cc.Component {
         }
         if(tileAttr.moneyEffect > 0){
             let extraMoney = 0;
+            const adj = tile.getAdjacentTiles();
+            // 伐木场：每毗邻一棵云杉/侧柏 +1 金币
             if(tile.deviceType == DeviceType.Industry1){
-                if(tile.leftUpTile.deviceType == DeviceType.CeBo || tile.leftUpTile.deviceType == DeviceType.YunShan){
-                    extraMoney++;
-                }
-                if(tile.leftTile.deviceType == DeviceType.CeBo || tile.leftTile.deviceType == DeviceType.YunShan){
-                    extraMoney++;
-                }
-                if(tile.leftDownTile.deviceType == DeviceType.CeBo || tile.leftDownTile.deviceType == DeviceType.YunShan){
-                    extraMoney++;
-                }
-                if(tile.rightUpTile.deviceType == DeviceType.CeBo || tile.rightUpTile.deviceType == DeviceType.YunShan){
-                    extraMoney++;
-                }
-                if(tile.rightTile.deviceType == DeviceType.CeBo || tile.rightTile.deviceType == DeviceType.YunShan){
-                    extraMoney++;
-                }
-                if(tile.rightDownTile.deviceType == DeviceType.CeBo || tile.rightDownTile.deviceType == DeviceType.YunShan){
-                    extraMoney++;
+                for(let k = 0; k < adj.length; k++){
+                    if(adj[k] && (adj[k].deviceType == DeviceType.CeBo || adj[k].deviceType == DeviceType.YunShan)){
+                        extraMoney++;
+                    }
                 }
             }
-            // 判断是否是采石场
+            // 采石场：每毗邻一格岩石 +3 金币
             if(tile.deviceType == DeviceType.Industry2){
-                if(tile.leftUpTile.deviceType == DeviceType.Rock){
-                    extraMoney +=3;
-                }
-                if(tile.leftTile.deviceType == DeviceType.Rock){
-                    extraMoney +=3;
-                }
-                if(tile.leftDownTile.deviceType == DeviceType.Rock){
-                    extraMoney +=3;
-                }
-                if(tile.rightUpTile.deviceType == DeviceType.Rock){
-                    extraMoney +=3;
-                }
-                if(tile.rightTile.deviceType == DeviceType.Rock){
-                    extraMoney +=3;
-                }
-                if(tile.rightDownTile.deviceType == DeviceType.Rock){
-                    extraMoney +=3;
+                for(let k = 0; k < adj.length; k++){
+                    if(adj[k] && adj[k].deviceType == DeviceType.Rock){
+                        extraMoney += 3;
+                    }
                 }
             }
             this.effectLbl.string += LanguageManager.t("effect_money_plus", { val: ((tileAttr.moneyEffect + extraMoney) * workerNum) }) + "; ";

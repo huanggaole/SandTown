@@ -33,4 +33,13 @@ export default class TileScript{
     rightTile:TileScript = null;
     rightUpTile:TileScript = null;
     rightDownTile:TileScript = null;
+
+    /**
+     * 返回六个相邻地块。地图边缘处对应项为 null（地图边界不环绕），
+     * 遍历时**必须**先判空——相邻加成、幸福度扩散都靠它取邻居。
+     */
+    getAdjacentTiles(): Array<TileScript> {
+        return [this.leftUpTile, this.leftTile, this.leftDownTile,
+                this.rightUpTile, this.rightTile, this.rightDownTile];
+    }
 }

@@ -25,8 +25,18 @@ export default class BuildScript extends cc.Component {
     static BuildBtns;
     static selectedIndex = 0;
     static firstBuildingIndex = 12;
+
+    private unsubscribeLanguage: () => void = null;
+
+    onDestroy(): void {
+        if (this.unsubscribeLanguage) {
+            this.unsubscribeLanguage();
+            this.unsubscribeLanguage = null;
+        }
+    }
+
     start(): void {
-        LanguageManager.onChange(()=>{
+        this.unsubscribeLanguage = LanguageManager.onChange(()=>{
             if(this.infoLbl){
                 this.infoLbl.string = LanguageManager.getBuildIntro(BuildScript.selectedIndex);
             }
@@ -66,7 +76,20 @@ export default class BuildScript extends cc.Component {
     }
     static dealBuilding(tile:TileScript){
         if(this.selectedIndex == 0){
-            if((tile.deviceType == DeviceType.Rock || tile.tileType > 4) && ResearchScript.cultureStatus[11] != 0){
+            // 岩石是独立的一类障碍物：地块本身仍是沙地，必须先判定再判断"有没有建筑"。
+            // 可清除的条件是"已研究岩土工程"（cultureStatus[11] == 1），
+            // -1 未解锁 / 0 可研究 都必须提示去研究。
+            if(tile.deviceType == DeviceType.Rock){
+                if(ResearchScript.cultureStatus[11] != 1){
+                    DialogScript.ShowDialog(LanguageManager.t("dlg_geotech_needed"));
+                }else{
+                    tile.deviceType = -1;
+                    tile.deviceSF = null;
+                    tile.deviceNode.getComponent(cc.Sprite).spriteFrame = null;
+                    DataUtil.money -= this.moneyCost[0];
+                }
+            }else if(tile.tileType > TileType.Stone){
+                // 坡地属于地形而非建筑，需要岩土工程平整（当前地图 prop_H = 0，不会生成坡地）
                 DialogScript.ShowDialog(LanguageManager.t("dlg_geotech_needed"));
             }else if(tile.deviceType <= 0){
                 DialogScript.ShowDialog(LanguageManager.t("dlg_no_building"));
@@ -177,36 +200,5 @@ export default class BuildScript extends cc.Component {
         1400,
         3000,
         6000
-    ];
-
-    static introTxt=[
-        "清除建筑：可以将一个建筑用地上的建筑清除。不能清除植物。研究\"岩土工程\"后可以清除岩石。",
-        "建设用地：可以将泥地或草地改建为建设用地。所有的建筑必须建在建设用地上。",
-        "建设水体：可以草地改建为水体。水体有助于灌溉周围的植物，并为野生动物提供饮水。",
-        "复土还绿：可以将建设用地或水体根据土壤含水率重新恢复为泥土或绿地。",
-        "棚屋：本地的传统住宅，能容纳5个居民，为住户提供10点幸福度。",
-        "平房小院：农村常见的住宅，能容纳7个居民，为住户提供20点幸福度。",
-        "洋房别墅：新农村建设时期流行的住宅，能容纳10个居民，为住户提供40点幸福度。",
-        "公寓楼：城市化初期很受欢迎的住宅，能容纳12个居民，为住户提供20点幸福度。",
-        "高层住宅：深度城市化后流行的住宅，能容纳20个居民，为住户提供30点幸福度。",
-        "垂直森林：面向未来的生态主义住宅，能容纳15个居民，为住户提供40点幸福度。",
-        "商店街：可以采购商品。每位工作人员可以产生2点金钱，2格内的住宅建筑提供5点幸福度。",
-        "公园：市民放松身心的地点。每位工作人员产生2点文化，3格内的住宅建筑提供5点幸福度。",
-        "快餐店：为市民提供餐饮与娱乐。每位工作人员产生5点金钱，3格以内的住宅建筑提供5点幸福度。",
-        "大礼堂：放映电影、戏剧、音乐会的文化场所。每位工作人员产生5点文化、5点金钱，5格以内的住宅建筑提供5点幸福度。",
-        "运动场：全民健身场所，也会举办演唱会等文化活动。每位工作人员产生5点文化、5点金钱，6格以内的住宅建筑提供5点幸福度。",
-        "生态度假区：可以在城市中亲近自然。每位工作人员产生5点文化、10点金钱，6格以内的住宅建筑提供5点幸福度。",
-        "学校：开展终身学习、技术培训的场所。每位工作人员产生5点文化，花费2点金钱。",
-        "活动室：唱歌、跳舞、打乒乓球的文娱场所。每位工作人员产生8点文化，花费4点金钱。",
-        "图书馆：读书、看报、办各种展览的场所。每位工作人员产生12点文化，花费6点金钱。",
-        "研究所：研究前沿技术的科技场所。每位工作人员产生20点文化，花费8点金钱。",
-        "文化产业园：能够同时产生大量文化与金钱。每位工作人员产生20点文化，5点金钱。",
-        "木材厂：每位工作人员产生5点金钱，周围每毗邻1棵云杉或侧柏，收入+1点金币。受噪音影响，2格以内的住宅降低5幸福度。",
-        "采石场：每位工作人员产生5点金钱，周围每毗邻1格岩石，收入+3点金币。受噪音与粉尘影响，3格以内的住宅降低5幸福度。",
-        "风力磨坊：每位工作人员产生10点金钱，受噪声影响，3格以内的住宅降低5幸福度。",
-        "手工加工厂：每位工作人员产生20点金钱，受噪声影响，3格以内的住宅降低10幸福度。",
-        "重工厂：每位工作人员产生40点金钱，受噪声影响，3格以内的住宅降低15幸福度。",
-        "高新产业园：每位工作人员产生40点金钱。",
-        "固碳车间：每位工作人员产生60点金钱。"
     ];
 }

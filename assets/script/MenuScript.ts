@@ -93,6 +93,16 @@ export default class MenuScript extends cc.Component {
     static fooLbl;
     // onLoad () {}
     operState:operType = operType.Move;
+
+    private unsubscribeLanguage: () => void = null;
+
+    onDestroy(){
+        if (this.unsubscribeLanguage) {
+            this.unsubscribeLanguage();
+            this.unsubscribeLanguage = null;
+        }
+    }
+
     start () {
         this.refreshMenu();
         MenuScript.popLbl = this.populationLbl;
@@ -147,7 +157,7 @@ export default class MenuScript extends cc.Component {
             DataUtil.nextLevel();
             this.refreshMenu();
         },this);
-        LanguageManager.onChange(()=>{
+        this.unsubscribeLanguage = LanguageManager.onChange(()=>{
             this.refreshMenu();
         });
     }

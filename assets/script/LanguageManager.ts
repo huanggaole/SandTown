@@ -12,12 +12,27 @@ export default class LanguageManager extends cc.Component {
         for (const cb of this.listeners) cb();
     }
 
-    static onChange(cb: () => void) {
+    /**
+     * 注册语言切换回调，返回取消注册的函数。
+     * 组件必须在 onDestroy() 里调用返回的函数，否则场景切换后
+     * listeners 里会残留指向已销毁节点的回调，触发空引用。
+     */
+    static onChange(cb: () => void): () => void {
         this.listeners.push(cb);
+        return () => {
+            const idx = this.listeners.indexOf(cb);
+            if (idx >= 0) {
+                this.listeners.splice(idx, 1);
+            }
+        };
+    }
+
+    /** 兜底清空全部监听（正常流程应由各组件 onDestroy 自行注销） */
+    static clearListeners() {
+        this.listeners = [];
     }
 
     static t(key: string, params: Record<string, any> = {}): string {
-        console.log(this.current);
         const dict = this.current === "zh" ? this.zh : this.en;
         let s = dict[key] ?? key;
         for (const k in params) {
@@ -121,7 +136,7 @@ export default class LanguageManager extends cc.Component {
         dlg_already_construction: "当前土地块已经是建设用地了。",
         dlg_water_to_grass_or_dirt_before_construction: "在将土地改建为建设用地前，请先将水体改建成草地或泥地。",
         dlg_sand_cannot_construct: "沙土松散，无法进行建设。请先提高土壤含水量。",
-        dlg_clear_rock_before_water: "在将土地改建为水体前，请先清除此地块上的岩石清除。需要研究“岩土工程”。",
+        dlg_clear_rock_before_water: "在将土地改建为水体前，请先清除此地块上的岩石。需要研究“岩土工程”。",
         dlg_already_water: "当前土地块已经是水体了。",
         dlg_clear_plants_or_building_before_water: "在将土地改建为水体前，请先清除此地块上的植物或建筑。",
         dlg_restore_green_before_build_water: "在将建设用地改建为水体前，请先“退建还草”，将建设用地改建为草地或泥地。",
@@ -275,14 +290,14 @@ export default class LanguageManager extends cc.Component {
         "沙地云杉：可以在一个空地块上种植沙地云杉。需要花费2点金币。沙地云杉不需要人工维护，但生长较慢。",
         "侧柏：可以在一个空地块上种植侧柏。需要花费2点金币。侧柏不需要人工维护，但必须种在泥地或草地上。",
         "农田：可以在一个空地块上种植农田。需要花费2点金币。农田每个工人获得2点粮食，但只能种在草地上。",
-        "高级农田：可以在一个空地块上种植农田。需要花费200点金币。高级农田每个工人获得10点粮食与10枚金币，但只能种在草地上。",
+        "高级农田：可以在一个空地块上种植高级农田。需要花费200点金币。高级农田每个工人获得10点粮食与10枚金币，但只能种在草地上。",
     ];
 
     static plantIntroEn = [
         "Remove Plant: Clear plants on a tile. Costs 1 coin. Cannot clear rocks/buildings.",
         "Saxaul: Plant saxaul on an empty tile. Costs 2 coins. Needs maintenance each turn.",
         "Sea Buckthorn: Plant on an empty tile. Costs 2 coins. Each worker increases survival; +1 food per turn.",
-        "Cactus Column: Plant on an empty tile. Costs 2 coins. Needs maintenance each turn.",
+        "Sweetvetch: Plant on an empty tile. Costs 2 coins. Needs maintenance each turn, or it may be grazed or diseased.",
         "Spruce: Plant on an empty tile. Costs 2 coins. No maintenance, slow growth.",
         "Thuja: Plant on an empty or green/dirt tile. Costs 2 coins. No maintenance, must be on dirt/grass.",
         "Farm: Plant on an empty tile. Costs 2 coins. Each worker produces 2 food; only on grass.",
@@ -302,20 +317,20 @@ export default class LanguageManager extends cc.Component {
         "垂直森林：面向未来的生态主义住宅，能容纳15个居民，为住户提供40点幸福度。",
         "商店街：可以采购商品。每位工作人员可以产生2点金钱，2格内的住宅建筑提供5点幸福度。",
         "公园：市民放松身心的地点。每位工作人员产生2点文化，3格内的住宅建筑提供5点幸福度。",
-        "快餐店：为市民提供餐饮与娱乐。每位工作人员产生5点金钱，3格以内的住宅建筑提供5点幸福度。",
+        "快餐店：为市民提供餐饮与娱乐。每位工作人员产生5点金钱，4格以内的住宅建筑提供5点幸福度。",
         "大礼堂：文化场所。每位工作人员产生5点文化、5点金钱，5格以内的住宅建筑提供5点幸福度。",
-        "运动场：每位工作人员产生5点文化、5点金钱，6格以内的住宅建筑提供5点幸福度。",
+        "体育馆：每位工作人员产生5点文化、5点金钱，6格以内的住宅建筑提供5点幸福度。",
         "生态度假区：每位工作人员产生5点文化、10点金钱，6格以内的住宅建筑提供5点幸福度。",
         "学校：每位工作人员产生5点文化，花费2点金钱。",
         "活动室：每位工作人员产生8点文化，花费4点金钱。",
         "图书馆：每位工作人员产生12点文化，花费6点金钱。",
         "研究所：每位工作人员产生20点文化，花费8点金钱。",
         "文化产业园：每位工作人员产生20点文化，5点金钱。",
-        "木材厂：每位工作人员产生5点金钱；每邻接一棵云杉/侧柏，收入+1。",
-        "采石场：每位工作人员产生5点金钱；每邻接一格岩石，收入+3。",
-        "风力磨坊：每位工作人员产生10点金钱。",
-        "手工加工厂：每位工作人员产生20点金钱。",
-        "重工厂：每位工作人员产生40点金钱。",
+        "木材厂：每位工作人员产生5点金钱；每邻接一棵云杉/侧柏，收入+1。受噪声影响，2格以内的住宅幸福度-5。",
+        "采石场：每位工作人员产生5点金钱；每邻接一格岩石，收入+3。受噪声与粉尘影响，3格以内的住宅幸福度-5。",
+        "风力磨坊：每位工作人员产生10点金钱。受噪声影响，3格以内的住宅幸福度-5。",
+        "手工加工厂：每位工作人员产生20点金钱。受噪声影响，3格以内的住宅幸福度-10。",
+        "重工厂：每位工作人员产生40点金钱。受噪声影响，3格以内的住宅幸福度-15。",
         "高新产业园：每位工作人员产生40点金钱。",
         "固碳车间：每位工作人员产生60点金钱。",
     ];
@@ -333,7 +348,7 @@ export default class LanguageManager extends cc.Component {
         "Vertical Forest: Houses 15 residents, provides 40 happiness.",
         "Shopping Street: Each worker produces 2 coins; +5 happiness to houses within 2 tiles.",
         "Park: Each worker produces 2 culture; +5 happiness to houses within 3 tiles.",
-        "Fast Food: Each worker produces 5 coins; +5 happiness to houses within 3 tiles.",
+        "Fast Food: Each worker produces 5 coins; +5 happiness to houses within 4 tiles.",
         "Auditorium: Each worker produces 5 culture, 5 coins; +5 happiness within 5 tiles.",
         "Stadium: Each worker produces 5 culture, 5 coins; +5 happiness within 6 tiles.",
         "Eco Resort: Each worker produces 5 culture, 10 coins; +5 happiness within 6 tiles.",
@@ -342,11 +357,11 @@ export default class LanguageManager extends cc.Component {
         "Library: Each worker produces 12 culture; costs 6 coins.",
         "Research Institute: Each worker produces 20 culture; costs 8 coins.",
         "Culture Industry Park: Each worker produces 20 culture and 5 coins.",
-        "Lumber Mill: Each worker produces 5 coins; +1 income per adjacent spruce/thuja.",
-        "Quarry: Each worker produces 5 coins; +3 income per adjacent rock.",
-        "Windmill: Each worker produces 10 coins.",
-        "Handicraft Factory: Each worker produces 20 coins.",
-        "Heavy Industry: Each worker produces 40 coins.",
+        "Lumber Mill: Each worker produces 5 coins; +1 income per adjacent spruce/thuja; -5 happiness to houses within 2 tiles.",
+        "Quarry: Each worker produces 5 coins; +3 income per adjacent rock; -5 happiness to houses within 3 tiles.",
+        "Windmill: Each worker produces 10 coins; -5 happiness to houses within 3 tiles.",
+        "Handicraft Factory: Each worker produces 20 coins; -10 happiness to houses within 3 tiles.",
+        "Heavy Industry: Each worker produces 40 coins; -15 happiness to houses within 3 tiles.",
         "High-tech Park: Each worker produces 40 coins.",
         "Carbon Capture Workshop: Each worker produces 60 coins.",
     ];
@@ -355,12 +370,12 @@ export default class LanguageManager extends cc.Component {
         "清除植物","梭梭树","沙棘","花棒","沙地云杉","侧柏","农田","高级农田"
     ];
     static plantNameEn = [
-        "Remove Plant","Saxaul","Sea Buckthorn","Cactus Column","Spruce","Thuja","Farm","Advanced Farm"
+        "Remove Plant","Saxaul","Sea Buckthorn","Sweetvetch","Spruce","Thuja","Farm","Advanced Farm"
     ];
     static buildNameZh = [
         "清除建筑","建设用地","建设水体","复土还绿",
         "棚屋","平房小院","洋房别墅","公寓楼","高层住宅","垂直森林",
-        "商店街","公园","快餐店","大礼堂","运动场","生态度假区",
+        "商店街","公园","快餐店","大礼堂","体育馆","生态度假区",
         "学校","活动室","图书馆","研究所","文化产业园",
         "木材厂","采石场","风力磨坊","手工加工厂","重工厂","高新产业园","固碳车间"
     ];
@@ -379,7 +394,7 @@ export default class LanguageManager extends cc.Component {
     ];
 
     static cultureNameEn = [
-        "Rural Reform","Dryland Cultivation","Agro-processing","Technical Education","Beautiful Countryside","New Rural Construction","Agricultural Mechanization","Farmer Professionalization","Cultural Development","Convenience Life Circle","Urbanization","Geotechnical Engineering","Industrial Automation","Universal\nPublic Services","Spiritual Civilization\nConstruction","Urbanization","Clean Energy","Industrial Upgrade","Technological Innovation","National Fitness","Ecological Civilization\nConstruction","Biotechnology","Carbon-neutral Trade","Popular Science","Green Services",
+        "Rural Reform","Dryland Cultivation","Agro-processing","Technical Education","Beautiful Countryside","New Rural Construction","Agricultural Mechanization","Farmer Professionalization","Cultural Development","Convenience Life Circle","Urbanization","Geotechnical Engineering","Industrial Automation","Universal\nPublic Services","Spiritual Civilization\nConstruction","Metropolitanization","Clean Energy","Industrial Upgrade","Technological Innovation","National Fitness","Ecological Civilization\nConstruction","Biotechnology","Carbon-neutral Trade","Popular Science","Green Services",
     ];
 
     static cultureIntroZh = [
@@ -393,8 +408,8 @@ export default class LanguageManager extends cc.Component {
         "农民职业化：研究此技术后，将解锁建筑“手工加工厂”。",
         "文化建设：研究此技术后，将解锁建筑“活动室”。",
         "便民生活圈：研究此技术后，将解锁建筑“快餐店”。",
-        "将农村人口转化为城镇人口的过程。完成此研究将解锁建筑\"公寓\"，\"村委会\"改名为“镇政府”，最大工作人员数提升至8人，幸福度的影响范围提升至5单元格。",
-        "岩土工程：研究此技术后，可以移除岩石，可以解锁建筑“修建水体”。",
+        "将农村人口转化为城镇人口的过程。完成此研究将解锁建筑\"公寓楼\"，\"村委会\"改名为“镇政府”，最大工作人员数提升至8人，幸福度的影响范围提升至5单元格。",
+        "岩土工程：研究此技术后，可以移除岩石，可以解锁建筑“建设水体”。",
         "工业自动化：研究此技术后，将解锁建筑“重工厂”。",
         "普及公共服务：研究此技术后，将解锁建筑“图书馆”。",
         "精神文明建设：研究此技术后，将解锁建筑“大礼堂”。",
@@ -403,7 +418,7 @@ export default class LanguageManager extends cc.Component {
         "产业升级：研究此技术后，将解锁建筑“高新产业园”。",
         "科技创新：研究此技术后，将解锁建筑“研究所”。",
         "全民健身：研究此技术后，将解锁建筑“体育馆”。",
-        "打造可持续发展的、面向未来的城市。完成此研究将解锁建筑\"高层住宅\"，并将\"镇政府\"的幸福度影响范围提升至9单元格。",
+        "打造可持续发展的、面向未来的城市。完成此研究将解锁建筑\"垂直森林\"，并将\"镇政府\"的幸福度影响范围提升至9单元格。",
         "生物科技：所有防风固沙、水土保持植物在没有工人时的存活率提升至100%，所有植物的食物产量翻倍。",
         "碳中和贸易：研究此技术后，将解锁建筑“固碳车间”。",
         "全民科普：研究此技术后，将解锁建筑“文化产业园”。",
@@ -426,12 +441,12 @@ export default class LanguageManager extends cc.Component {
         "Industrial Automation: Unlocks Heavy Industry.",
         "Universal Public Services: Unlocks Library.",
         "Spiritual Civilization Construction: Unlocks Auditorium.",
-        "Further urban transformation: Unlocks High-rise; Town Government max workers to 9; happiness range +6.",
+        "Metropolitanization: Unlocks High-rise; Town Government max workers to 9; happiness range +6.",
         "Clean Energy: Industrial negative happiness reduced to 1/5; Windmill produces 30 coins per worker.",
         "Industrial Upgrade: Unlocks High-tech Park.",
         "Technological Innovation: Unlocks Research Institute.",
         "National Fitness: Unlocks Stadium.",
-        "Ecological Civilization Construction: Unlocks High-rise; Town Government happiness range +9.",
+        "Ecological Civilization Construction: Unlocks Vertical Forest; Town Government happiness range +9.",
         "Biotechnology: All sand-control plants have 100% survival without workers; all plant food production doubled.",
         "Carbon-neutral Trade: Unlocks Carbon Capture Workshop.",
         "Popular Science: Unlocks Culture Industry Park.",

@@ -7,6 +7,15 @@ export default class LanguageButton extends cc.Component {
     @property(cc.Label)
     label: cc.Label = null;
 
+    private unsubscribeLanguage: () => void = null;
+
+    onDestroy() {
+        if (this.unsubscribeLanguage) {
+            this.unsubscribeLanguage();
+            this.unsubscribeLanguage = null;
+        }
+    }
+
     start() {
         if (!this.label) {
             const own = this.node.getComponent(cc.Label);
@@ -29,7 +38,7 @@ export default class LanguageButton extends cc.Component {
                 this.label.string = LanguageManager.t("lang_button");
             }
         });
-        LanguageManager.onChange(() => {
+        this.unsubscribeLanguage = LanguageManager.onChange(() => {
             if (this.label) {
                 this.label.string = LanguageManager.t("lang_button");
             }

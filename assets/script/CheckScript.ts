@@ -43,6 +43,15 @@ export default class CheckClass extends cc.Component {
 
     static checkIndex = 0;
 
+    private unsubscribeLanguage: () => void = null;
+
+    onDestroy() {
+        if (this.unsubscribeLanguage) {
+            this.unsubscribeLanguage();
+            this.unsubscribeLanguage = null;
+        }
+    }
+
     start () {
         const buttons = [this.populationBtn, this.workerBtn, this.cultureBtn, this.moneyBtn, this.foodBtn, this.SWCBtn];
         const labels: cc.Label[] = [];
@@ -59,7 +68,7 @@ export default class CheckClass extends cc.Component {
                 keys.push("");
             }
         }
-        LanguageManager.onChange(() => {
+        this.unsubscribeLanguage = LanguageManager.onChange(() => {
             for (let i = 0; i < labels.length; i++) {
                 if (labels[i] && keys[i]) {
                     labels[i].string = LanguageManager.t(keys[i]);
@@ -75,7 +84,7 @@ export default class CheckClass extends cc.Component {
                     buttons[j].hoverSprite = this.normalSF;
                 }
                 buttons[index].normalSprite = this.pressedSF;
-                buttons[index].pressedSprite = this.normalSF;
+                buttons[index].pressedSprite = this.pressedSF;
                 buttons[index].hoverSprite = this.pressedSF;
                 CheckClass.checkIndex = index;
                 MapScript.updateCheckStatus();

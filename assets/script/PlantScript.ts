@@ -25,9 +25,19 @@ export default class PlantScript extends cc.Component {
     static selectedIndex = 0;
     static PlantBtns;
     static InfoLbl: cc.Label;
+
+    private unsubscribeLanguage: () => void = null;
+
+    onDestroy(): void {
+        if (this.unsubscribeLanguage) {
+            this.unsubscribeLanguage();
+            this.unsubscribeLanguage = null;
+        }
+    }
+
     start(): void {
         PlantScript.InfoLbl = this.infoLbl;
-        LanguageManager.onChange(()=>{
+        this.unsubscribeLanguage = LanguageManager.onChange(()=>{
             if(PlantScript.InfoLbl){
                 PlantScript.InfoLbl.string = LanguageManager.getPlantIntro(PlantScript.selectedIndex);
             }
@@ -134,7 +144,6 @@ export default class PlantScript extends cc.Component {
                     plantNum++;
                 }else if(tile.SWC < 10 && tile.deviceType >= 0 && DataUtil.deviceAttr[tile.deviceType].plantFunc != null){
                     const dieprop = DataUtil.deviceAttr[tile.deviceType].plantFunc.liveRate + DataUtil.deviceAttr[tile.deviceType].plantFunc.liveRatePerWorker * DataUtil.tileArray[j][i].workerNum;
-                    console.log(dieprop);
                     const rnd = Math.random() * 100;
                     if(dieprop < rnd){
                         tile.deviceType = -1;
@@ -160,16 +169,5 @@ export default class PlantScript extends cc.Component {
         2,
         2,
         200,
-    ];
-
-    static introTxt = [
-        "清除植物：可以将一个地块上的植物清除。需要花费" + PlantScript.moneyCost[0] + "点金币。不能清除石头或建筑物。",
-        "梭梭树：可以在一个空地块上种植梭梭树。需要花费" + PlantScript.moneyCost[1] + "点金币。梭梭树每回合需要人工维护，否则容易被动物啃食。",
-        "沙棘：可以在一个空地块上种植沙棘。需要花费" + PlantScript.moneyCost[2] + "点金币。沙棘每个工人能提高生存率且每回合能获得1点粮食。",
-        "花棒：可以在一个空地块上种植花棒。需要花费" + PlantScript.moneyCost[3] + "点金币。花棒需要人工维护，否则容易被动物啃食或生病。",
-        "沙地云杉：可以在一个空地块上种植沙地云杉。需要花费" + PlantScript.moneyCost[4] + "点金币。沙地云杉不需要人工维护，但生长较慢。",
-        "侧柏：可以在一个空地块上种植侧柏。需要花费" + PlantScript.moneyCost[5] + "点金币。侧柏不需要人工维护，但必须种在泥地或草地上。",
-        "农田：可以在一个空地块上种植农田。需要花费" + PlantScript.moneyCost[6] + "点金币。农田每个工人获得2点粮食，但只能种在草地上。",
-        "高级农田：可以在一个空地快上种植农田。需要花费" + PlantScript.moneyCost[7] + "点金币。高级农田每个工人获得10点粮食与10枚金币，但只能种在草地上。",
     ];
 }

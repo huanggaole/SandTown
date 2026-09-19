@@ -13,12 +13,21 @@ export default class LocalizedSprite extends cc.Component {
     @property(cc.SpriteFrame)
     enSprite: cc.SpriteFrame = null;
 
+    private unsubscribeLanguage: () => void = null;
+
+    onDestroy() {
+        if (this.unsubscribeLanguage) {
+            this.unsubscribeLanguage();
+            this.unsubscribeLanguage = null;
+        }
+    }
+
     start() {
         if (!this.sprite) {
             this.sprite = this.node.getComponent(cc.Sprite);
         }
         this.applyFrame();
-        LanguageManager.onChange(() => {
+        this.unsubscribeLanguage = LanguageManager.onChange(() => {
             this.applyFrame();
         });
     }
